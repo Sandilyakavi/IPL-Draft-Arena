@@ -1,0 +1,102 @@
+[
+  {
+    "id": "csk",
+    "name": "Chennai Super Kings",
+    "shortName": "CSK",
+    "city": "Chennai",
+    "logo": null,
+    "primaryColor": "#F9CD05",
+    "secondaryColor": "#005CA8",
+    "officialSource": "https://www.iplt20.com/teams/chennai-super-kings/squad"
+  },
+  {
+    "id": "dc",
+    "name": "Delhi Capitals",
+    "shortName": "DC",
+    "city": "Delhi",
+    "logo": null,
+    "primaryColor": "#17449B",
+    "secondaryColor": "#E42528",
+    "officialSource": "https://www.iplt20.com/teams/delhi-capitals"
+  },
+  {
+    "id": "gt",
+    "name": "Gujarat Titans",
+    "shortName": "GT",
+    "city": "Ahmedabad",
+    "logo": null,
+    "primaryColor": "#1C2C5B",
+    "secondaryColor": "#CCA43B",
+    "officialSource": "https://www.iplt20.com/teams/gujarat-titans"
+  },
+  {
+    "id": "kkr",
+    "name": "Kolkata Knight Riders",
+    "shortName": "KKR",
+    "city": "Kolkata",
+    "logo": null,
+    "primaryColor": "#3A225D",
+    "secondaryColor": "#F7D070",
+    "officialSource": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026"
+  },
+  {
+    "id": "lsg",
+    "name": "Lucknow Super Giants",
+    "shortName": "LSG",
+    "city": "Lucknow",
+    "logo": null,
+    "primaryColor": "#A72056",
+    "secondaryColor": "#0057B8",
+    "officialSource": "https://www.iplt20.com/teams/lucknow-super-giants"
+  },
+  {
+    "id": "mi",
+    "name": "Mumbai Indians",
+    "shortName": "MI",
+    "city": "Mumbai",
+    "logo": null,
+    "primaryColor": "#004BA0",
+    "secondaryColor": "#D1AB3E",
+    "officialSource": "https://www.iplt20.com/teams/mumbai-indians/squad/2026"
+  },
+  {
+    "id": "pbks",
+    "name": "Punjab Kings",
+    "shortName": "PBKS",
+    "city": "Punjab",
+    "logo": null,
+    "primaryColor": "#ED1B24",
+    "secondaryColor": "#D1AB3E",
+    "officialSource": "https://www.iplt20.com/teams/punjab-kings/squad/2026"
+  },
+  {
+    "id": "rr",
+    "name": "Rajasthan Royals",
+    "shortName": "RR",
+    "city": "Rajasthan",
+    "logo": null,
+    "primaryColor": "#EA1A85",
+    "secondaryColor": "#254AA5",
+    "officialSource": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026"
+  },
+  {
+    "id": "rcb",
+    "name": "Royal Challengers Bengaluru",
+    "shortName": "RCB",
+    "city": "Bengaluru",
+    "logo": null,
+    "primaryColor": "#D62828",
+    "secondaryColor": "#414042",
+    "officialSource": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026"
+  },
+  {
+    "id": "srh",
+    "name": "Sunrisers Hyderabad",
+    "shortName": "SRH",
+    "city": "Hyderabad",
+    "logo": null,
+    "primaryColor": "#F7A721",
+    "secondaryColor": "#000000",
+    "officialSource": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026"
+  }
+]

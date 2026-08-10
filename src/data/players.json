@@ -1,0 +1,4050 @@
+[
+  {
+    "id": "ruturaj-gaikwad",
+    "name": "Ruturaj Gaikwad",
+    "teamId": "csk",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ms-dhoni",
+    "name": "MS Dhoni",
+    "teamId": "csk",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sanju-samson",
+    "name": "Sanju Samson",
+    "teamId": "csk",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "dewald-brevis",
+    "name": "Dewald Brevis",
+    "teamId": "csk",
+    "role": "batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kartik-sharma",
+    "name": "Kartik Sharma",
+    "teamId": "csk",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sarfaraz-khan",
+    "name": "Sarfaraz Khan",
+    "teamId": "csk",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "urvil-patel",
+    "name": "Urvil Patel",
+    "teamId": "csk",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "prashant-veer",
+    "name": "Prashant Veer",
+    "teamId": "csk",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "matthew-william-short",
+    "name": "Matthew William Short",
+    "teamId": "csk",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "aman-khan",
+    "name": "Aman Khan",
+    "teamId": "csk",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "zak-foulkes",
+    "name": "Zak Foulkes",
+    "teamId": "csk",
+    "role": "all-rounder",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "macneil-noronha",
+    "name": "Macneil Noronha",
+    "teamId": "csk",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "dian-forrester",
+    "name": "Dian Forrester",
+    "teamId": "csk",
+    "role": "all-rounder",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shivam-dube",
+    "name": "Shivam Dube",
+    "teamId": "csk",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "noor-ahmad",
+    "name": "Noor Ahmad",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "AFG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "anshul-kamboj",
+    "name": "Anshul Kamboj",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mukesh-choudhary",
+    "name": "Mukesh Choudhary",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shreyas-gopal",
+    "name": "Shreyas Gopal",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "gurjapneet-singh",
+    "name": "Gurjapneet Singh",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "akeal-hosein",
+    "name": "Akeal Hosein",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "WI",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "matt-henry",
+    "name": "Matt Henry",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rahul-chahar",
+    "name": "Rahul Chahar",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "spencer-johnson",
+    "name": "Spencer Johnson",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "akash-madhwal",
+    "name": "Akash Madhwal",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kuldip-yadav",
+    "name": "Kuldip Yadav",
+    "teamId": "csk",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/chennai-super-kings/squad",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kl-rahul",
+    "name": "KL Rahul",
+    "teamId": "dc",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "karun-nair",
+    "name": "Karun Nair",
+    "teamId": "dc",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "david-miller",
+    "name": "David Miller",
+    "teamId": "dc",
+    "role": "batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "pathum-nissanka",
+    "name": "Pathum Nissanka",
+    "teamId": "dc",
+    "role": "batter",
+    "nationality": "SL",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sahil-parakh",
+    "name": "Sahil Parakh",
+    "teamId": "dc",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "prithvi-shaw",
+    "name": "Prithvi Shaw",
+    "teamId": "dc",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "abishek-porel",
+    "name": "Abishek Porel",
+    "teamId": "dc",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "tristan-stubbs",
+    "name": "Tristan Stubbs",
+    "teamId": "dc",
+    "role": "wicketkeeper-batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "axar-patel",
+    "name": "Axar Patel",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sameer-rizvi",
+    "name": "Sameer Rizvi",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ashutosh-sharma",
+    "name": "Ashutosh Sharma",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vipraj-nigam",
+    "name": "Vipraj Nigam",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ajay-mandal",
+    "name": "Ajay Mandal",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "tripurana-vijay",
+    "name": "Tripurana Vijay",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "madhav-tiwari",
+    "name": "Madhav Tiwari",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "nitish-rana",
+    "name": "Nitish Rana",
+    "teamId": "dc",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mitchell-starc",
+    "name": "Mitchell Starc",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "t-natarajan",
+    "name": "T. Natarajan",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mukesh-kumar",
+    "name": "Mukesh Kumar",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "dushmantha-chameera",
+    "name": "Dushmantha Chameera",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "SL",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "auqib-nabi",
+    "name": "Auqib Nabi",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "lungisani-ngidi",
+    "name": "Lungisani Ngidi",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kyle-jamieson",
+    "name": "Kyle Jamieson",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rehan-ahmed",
+    "name": "Rehan Ahmed",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kuldeep-yadav",
+    "name": "Kuldeep Yadav",
+    "teamId": "dc",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/delhi-capitals",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shubman-gill",
+    "name": "Shubman Gill",
+    "teamId": "gt",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jos-buttler",
+    "name": "Jos Buttler",
+    "teamId": "gt",
+    "role": "wicketkeeper-batter",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kumar-kushagra",
+    "name": "Kumar Kushagra",
+    "teamId": "gt",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "anuj-rawat",
+    "name": "Anuj Rawat",
+    "teamId": "gt",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "connor-esterhuizen",
+    "name": "Connor Esterhuizen",
+    "teamId": "gt",
+    "role": "batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "glenn-phillips",
+    "name": "Glenn Phillips",
+    "teamId": "gt",
+    "role": "batter",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sai-sudharsan",
+    "name": "Sai Sudharsan",
+    "teamId": "gt",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "nishant-sindhu",
+    "name": "Nishant Sindhu",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "washington-sundar",
+    "name": "Washington Sundar",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mohd-arshad-khan",
+    "name": "Mohd. Arshad Khan",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sai-kishore",
+    "name": "Sai Kishore",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jayant-yadav",
+    "name": "Jayant Yadav",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jason-holder",
+    "name": "Jason Holder",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rahul-tewatia",
+    "name": "Rahul Tewatia",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shahrukh-khan",
+    "name": "Shahrukh Khan",
+    "teamId": "gt",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kagiso-rabada",
+    "name": "Kagiso Rabada",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mohammed-siraj",
+    "name": "Mohammed Siraj",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "prasidh-krishna",
+    "name": "Prasidh Krishna",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "manav-suthar",
+    "name": "Manav Suthar",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "gurnoor-singh-brar",
+    "name": "Gurnoor Singh Brar",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ishant-sharma",
+    "name": "Ishant Sharma",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ashok-sharma",
+    "name": "Ashok Sharma",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "luke-wood",
+    "name": "Luke Wood",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kulwant-khejroliya",
+    "name": "Kulwant Khejroliya",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rashid-khan",
+    "name": "Rashid Khan",
+    "teamId": "gt",
+    "role": "bowler",
+    "nationality": "AFG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/gujarat-titans",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ajinkya-rahane",
+    "name": "Ajinkya Rahane",
+    "teamId": "kkr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rinku-singh",
+    "name": "Rinku Singh",
+    "teamId": "kkr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "angkrish-raghuvanshi",
+    "name": "Angkrish Raghuvanshi",
+    "teamId": "kkr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "manish-pandey",
+    "name": "Manish Pandey",
+    "teamId": "kkr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "finn-allen",
+    "name": "Finn Allen",
+    "teamId": "kkr",
+    "role": "wicketkeeper-batter",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "tejasvi-singh",
+    "name": "Tejasvi Singh",
+    "teamId": "kkr",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rahul-tripathi",
+    "name": "Rahul Tripathi",
+    "teamId": "kkr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "tim-seifert",
+    "name": "Tim Seifert",
+    "teamId": "kkr",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "luvnith-sisodia",
+    "name": "Luvnith Sisodia",
+    "teamId": "kkr",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rovman-powell",
+    "name": "Rovman Powell",
+    "teamId": "kkr",
+    "role": "batter",
+    "nationality": "WI",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "anukul-roy",
+    "name": "Anukul Roy",
+    "teamId": "kkr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "cameron-green",
+    "name": "Cameron Green",
+    "teamId": "kkr",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sarthak-ranjan",
+    "name": "Sarthak Ranjan",
+    "teamId": "kkr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "daksh-kamra",
+    "name": "Daksh Kamra",
+    "teamId": "kkr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rachin-ravindra",
+    "name": "Rachin Ravindra",
+    "teamId": "kkr",
+    "role": "all-rounder",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ramandeep-singh",
+    "name": "Ramandeep Singh",
+    "teamId": "kkr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sunil-narine",
+    "name": "Sunil Narine",
+    "teamId": "kkr",
+    "role": "all-rounder",
+    "nationality": "WI",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "blessing-muzarabani",
+    "name": "Blessing Muzarabani",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "ZIM",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vaibhav-arora",
+    "name": "Vaibhav Arora",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kartik-tyagi",
+    "name": "Kartik Tyagi",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "prashant-solanki",
+    "name": "Prashant Solanki",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "saurabh-dubey",
+    "name": "Saurabh Dubey",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "navdeep-saini",
+    "name": "Navdeep Saini",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "umran-malik",
+    "name": "Umran Malik",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "varun-chakaravarthy",
+    "name": "Varun Chakaravarthy",
+    "teamId": "kkr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/kolkata-knight-riders/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rishabh-pant",
+    "name": "Rishabh Pant",
+    "teamId": "lsg",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "aiden-markram",
+    "name": "Aiden Markram",
+    "teamId": "lsg",
+    "role": "batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "himmat-singh",
+    "name": "Himmat Singh",
+    "teamId": "lsg",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "matthew-breetzke",
+    "name": "Matthew Breetzke",
+    "teamId": "lsg",
+    "role": "batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mukul-choudhary",
+    "name": "Mukul Choudhary",
+    "teamId": "lsg",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "akshat-raghuwanshi",
+    "name": "Akshat Raghuwanshi",
+    "teamId": "lsg",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "josh-inglis",
+    "name": "Josh Inglis",
+    "teamId": "lsg",
+    "role": "wicketkeeper-batter",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "nicholas-pooran",
+    "name": "Nicholas Pooran",
+    "teamId": "lsg",
+    "role": "wicketkeeper-batter",
+    "nationality": "WI",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mitchell-marsh",
+    "name": "Mitchell Marsh",
+    "teamId": "lsg",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "abdul-samad",
+    "name": "Abdul Samad",
+    "teamId": "lsg",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shahbaz-ahamad",
+    "name": "Shahbaz Ahamad",
+    "teamId": "lsg",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "arshin-kulkarni",
+    "name": "Arshin Kulkarni",
+    "teamId": "lsg",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ayush-badoni",
+    "name": "Ayush Badoni",
+    "teamId": "lsg",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mohammad-shami",
+    "name": "Mohammad Shami",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "avesh-khan",
+    "name": "Avesh Khan",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "m-siddharth",
+    "name": "M. Siddharth",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "digvesh-singh",
+    "name": "Digvesh Singh",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "akash-singh",
+    "name": "Akash Singh",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "prince-yadav",
+    "name": "Prince Yadav",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "arjun-tendulkar",
+    "name": "Arjun Tendulkar",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "anrich-nortje",
+    "name": "Anrich Nortje",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "naman-tiwari",
+    "name": "Naman Tiwari",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "george-linde",
+    "name": "George Linde",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mayank-yadav",
+    "name": "Mayank Yadav",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mohsin-khan",
+    "name": "Mohsin Khan",
+    "teamId": "lsg",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/lucknow-super-giants",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rohit-sharma",
+    "name": "Rohit Sharma",
+    "teamId": "mi",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "surya-kumar-yadav",
+    "name": "Surya Kumar Yadav",
+    "teamId": "mi",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "robin-minz",
+    "name": "Robin Minz",
+    "teamId": "mi",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sherfane-rutherford",
+    "name": "Sherfane Rutherford",
+    "teamId": "mi",
+    "role": "batter",
+    "nationality": "WI",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ryan-rickelton",
+    "name": "Ryan Rickelton",
+    "teamId": "mi",
+    "role": "wicketkeeper-batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "quinton-de-kock",
+    "name": "Quinton de Kock",
+    "teamId": "mi",
+    "role": "wicketkeeper-batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "danish-malewar",
+    "name": "Danish Malewar",
+    "teamId": "mi",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ruchit-ahir",
+    "name": "Ruchit Ahir",
+    "teamId": "mi",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "n-tilak-varma",
+    "name": "N. Tilak Varma",
+    "teamId": "mi",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "hardik-pandya",
+    "name": "Hardik Pandya",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "naman-dhir",
+    "name": "Naman Dhir",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "raj-angad-bawa",
+    "name": "Raj Angad Bawa",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mayank-rawat",
+    "name": "Mayank Rawat",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "krish-bhagat",
+    "name": "Krish Bhagat",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mahipal-lomror",
+    "name": "Mahipal Lomror",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "corbin-bosch",
+    "name": "Corbin Bosch",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "will-jacks",
+    "name": "Will Jacks",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shardul-thakur",
+    "name": "Shardul Thakur",
+    "teamId": "mi",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "trent-boult",
+    "name": "Trent Boult",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mayank-markande",
+    "name": "Mayank Markande",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "deepak-chahar",
+    "name": "Deepak Chahar",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ashwani-kumar",
+    "name": "Ashwani Kumar",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "raghu-sharma",
+    "name": "Raghu Sharma",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mohammad-izhar",
+    "name": "Mohammad Izhar",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "keshav-maharaj",
+    "name": "Keshav Maharaj",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "allah-ghazanfar",
+    "name": "Allah Ghazanfar",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "AFG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jasprit-bumrah",
+    "name": "Jasprit Bumrah",
+    "teamId": "mi",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/mumbai-indians/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shreyas-iyer",
+    "name": "Shreyas Iyer",
+    "teamId": "pbks",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "nehal-wadhera",
+    "name": "Nehal Wadhera",
+    "teamId": "pbks",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vishnu-vinod",
+    "name": "Vishnu Vinod",
+    "teamId": "pbks",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "harnoor-pannu",
+    "name": "Harnoor Pannu",
+    "teamId": "pbks",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "pyla-avinash",
+    "name": "Pyla Avinash",
+    "teamId": "pbks",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "prabhsimran-singh",
+    "name": "Prabhsimran Singh",
+    "teamId": "pbks",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shashank-singh",
+    "name": "Shashank Singh",
+    "teamId": "pbks",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "marcus-stoinis",
+    "name": "Marcus Stoinis",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "harpreet-brar",
+    "name": "Harpreet Brar",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "marco-jansen",
+    "name": "Marco Jansen",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "azmatullah-omarzai",
+    "name": "Azmatullah Omarzai",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "AFG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "priyansh-arya",
+    "name": "Priyansh Arya",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "musheer-khan",
+    "name": "Musheer Khan",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "suryansh-shedge",
+    "name": "Suryansh Shedge",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mitch-owen",
+    "name": "Mitch Owen",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "cooper-connolly",
+    "name": "Cooper Connolly",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ben-dwarshuis",
+    "name": "Ben Dwarshuis",
+    "teamId": "pbks",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "arshdeep-singh",
+    "name": "Arshdeep Singh",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "yuzvendra-chahal",
+    "name": "Yuzvendra Chahal",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vyshak-vijaykumar",
+    "name": "Vyshak Vijaykumar",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "yash-thakur",
+    "name": "Yash Thakur",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "xavier-bartlett",
+    "name": "Xavier Bartlett",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "pravin-dubey",
+    "name": "Pravin Dubey",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vishal-nishad",
+    "name": "Vishal Nishad",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "lockie-ferguson",
+    "name": "Lockie Ferguson",
+    "teamId": "pbks",
+    "role": "bowler",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/punjab-kings/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shubham-dubey",
+    "name": "Shubham Dubey",
+    "teamId": "rr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vaibhav-sooryavanshi",
+    "name": "Vaibhav Sooryavanshi",
+    "teamId": "rr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "donovan-ferreira",
+    "name": "Donovan Ferreira",
+    "teamId": "rr",
+    "role": "wicketkeeper-batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "lhuan-dre-pretorius",
+    "name": "Lhuan-dre Pretorius",
+    "teamId": "rr",
+    "role": "wicketkeeper-batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "aman-rao-perala",
+    "name": "Aman Rao Perala",
+    "teamId": "rr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shimron-hetmyer",
+    "name": "Shimron Hetmyer",
+    "teamId": "rr",
+    "role": "batter",
+    "nationality": "WI",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "yashasvi-jaiswal",
+    "name": "Yashasvi Jaiswal",
+    "teamId": "rr",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "dhruv-jurel",
+    "name": "Dhruv Jurel",
+    "teamId": "rr",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "riyan-parag",
+    "name": "Riyan Parag",
+    "teamId": "rr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "yudhvir-singh-charak",
+    "name": "Yudhvir Singh Charak",
+    "teamId": "rr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "emanjot-chahal",
+    "name": "Emanjot Chahal",
+    "teamId": "rr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ravindra-jadeja",
+    "name": "Ravindra Jadeja",
+    "teamId": "rr",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "dasun-shanaka",
+    "name": "Dasun Shanaka",
+    "teamId": "rr",
+    "role": "all-rounder",
+    "nationality": "SL",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jofra-archer",
+    "name": "Jofra Archer",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "tushar-deshpande",
+    "name": "Tushar Deshpande",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kwena-maphaka",
+    "name": "Kwena Maphaka",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ravi-bishnoi",
+    "name": "Ravi Bishnoi",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sushant-mishra",
+    "name": "Sushant Mishra",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "yash-raj-punja",
+    "name": "Yash Raj Punja",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vignesh-puthur",
+    "name": "Vignesh Puthur",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "brijesh-sharma",
+    "name": "Brijesh Sharma",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "adam-milne",
+    "name": "Adam Milne",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kuldeep-sen",
+    "name": "Kuldeep Sen",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sandeep-sharma",
+    "name": "Sandeep Sharma",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "nandre-burger",
+    "name": "Nandre Burger",
+    "teamId": "rr",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/rajasthan-royals/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rajat-patidar",
+    "name": "Rajat Patidar",
+    "teamId": "rcb",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "devdutt-padikkal",
+    "name": "Devdutt Padikkal",
+    "teamId": "rcb",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "virat-kohli",
+    "name": "Virat Kohli",
+    "teamId": "rcb",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "phil-salt",
+    "name": "Phil Salt",
+    "teamId": "rcb",
+    "role": "wicketkeeper-batter",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jitesh-sharma",
+    "name": "Jitesh Sharma",
+    "teamId": "rcb",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jordan-cox",
+    "name": "Jordan Cox",
+    "teamId": "rcb",
+    "role": "wicketkeeper-batter",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "krunal-pandya",
+    "name": "Krunal Pandya",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "swapnil-singh",
+    "name": "Swapnil Singh",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "tim-david",
+    "name": "Tim David",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "romario-shepherd",
+    "name": "Romario Shepherd",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "WI",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jacob-bethell",
+    "name": "Jacob Bethell",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "venkatesh-iyer",
+    "name": "Venkatesh Iyer",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "satvik-deswal",
+    "name": "Satvik Deswal",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "mangesh-yadav",
+    "name": "Mangesh Yadav",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vicky-ostwal",
+    "name": "Vicky Ostwal",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "vihaan-malhotra",
+    "name": "Vihaan Malhotra",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kanishk-chouhan",
+    "name": "Kanishk Chouhan",
+    "teamId": "rcb",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "josh-hazlewood",
+    "name": "Josh Hazlewood",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "rasikh-dar",
+    "name": "Rasikh Dar",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "suyash-sharma",
+    "name": "Suyash Sharma",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "bhuvneshwar-kumar",
+    "name": "Bhuvneshwar Kumar",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "abhinandan-singh",
+    "name": "Abhinandan Singh",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jacob-duffy",
+    "name": "Jacob Duffy",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "NZ",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "richard-gleeson",
+    "name": "Richard Gleeson",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "yash-dayal",
+    "name": "Yash Dayal",
+    "teamId": "rcb",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/royal-challengers-bengaluru/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ishan-kishan",
+    "name": "Ishan Kishan",
+    "teamId": "srh",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "aniket-verma",
+    "name": "Aniket Verma",
+    "teamId": "srh",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "smaran-ravichandran",
+    "name": "Smaran Ravichandran",
+    "teamId": "srh",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "salil-arora",
+    "name": "Salil Arora",
+    "teamId": "srh",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "heinrich-klaasen",
+    "name": "Heinrich Klaasen",
+    "teamId": "srh",
+    "role": "wicketkeeper-batter",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": true,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "travis-head",
+    "name": "Travis Head",
+    "teamId": "srh",
+    "role": "batter",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "harshal-patel",
+    "name": "Harshal Patel",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "kamindu-mendis",
+    "name": "Kamindu Mendis",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "SL",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "harsh-dubey",
+    "name": "Harsh Dubey",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "shivang-kumar",
+    "name": "Shivang Kumar",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "krains-fuletra",
+    "name": "Krains Fuletra",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "liam-livingstone",
+    "name": "Liam Livingstone",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "ENG",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "r-s-ambrish",
+    "name": "R.S Ambrish",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "abhishek-sharma",
+    "name": "Abhishek Sharma",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "nitish-kumar-reddy",
+    "name": "Nitish Kumar Reddy",
+    "teamId": "srh",
+    "role": "all-rounder",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "pat-cummins",
+    "name": "Pat Cummins",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "AUS",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "zeeshan-ansari",
+    "name": "Zeeshan Ansari",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "jaydev-unadkat",
+    "name": "Jaydev Unadkat",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "eshan-malinga",
+    "name": "Eshan Malinga",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "SL",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "sakib-hussain",
+    "name": "Sakib Hussain",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "onkar-tarmale",
+    "name": "Onkar Tarmale",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "amit-kumar",
+    "name": "Amit Kumar",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "praful-hinge",
+    "name": "Praful Hinge",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "dilshan-madushanka",
+    "name": "Dilshan Madushanka",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "SL",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "gerald-coetzee",
+    "name": "Gerald Coetzee",
+    "teamId": "srh",
+    "role": "bowler",
+    "nationality": "SA",
+    "isOverseas": true,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-current-squad"
+    },
+    "sourceUrl": "https://www.iplt20.com/teams/sunrisers-hyderabad/squad/2026",
+    "notes": null,
+    "source": "official-ipl"
+  },
+  {
+    "id": "ayush-mhatre",
+    "name": "Ayush Mhatre",
+    "teamId": "csk",
+    "role": "batter",
+    "nationality": "IND",
+    "isOverseas": false,
+    "isWicketkeeper": false,
+    "image": null,
+    "seasonStatus": {
+      "2026": "2026-injured-retained-master"
+    },
+    "sourceUrl": "https://www.iplt20.com/index.php/news/4309/csk-sign-akash-madhwal-as-a-replacement-for-ayush-mhatre",
+    "notes": "Ruled out of remainder of IPL 2026; retained in master database and should not be deleted. Re-check 2027 eligibility when official 2027 squads are released.",
+    "source": "official-ipl"
+  }
+]

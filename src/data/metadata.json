@@ -1,0 +1,11 @@
+{
+  "dataset": "IPL Draft Arena - Combined IPL 2026 Player Master",
+  "season": 2026,
+  "source": "Official IPL 2026 team squad pages + official IPL announcements",
+  "lastVerified": "2026-08-10",
+  "totalMasterPlayers": 253,
+  "notes": {
+    "ayushMhatre": "Ayush Mhatre is intentionally retained as a CSK master player despite missing the remainder of IPL 2026 due to injury. His 2026 draft eligibility is false, but the player record itself is not deleted.",
+    "future": "Do not assume a 2027 roster until official IPL 2027 squads are announced."
+  }
+}
