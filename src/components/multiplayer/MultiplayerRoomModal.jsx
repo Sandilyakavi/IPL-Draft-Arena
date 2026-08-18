@@ -41,14 +41,20 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
 
   if (!isOpen) return null;
 
+  const isAuthenticated = Boolean(user && user.id);
+
   const currentUserData = {
-    id: user?.id || 'demo_user_123',
+    id: user?.id,
     username: profile?.username || user?.email?.split('@')[0] || 'Player',
     avatar: profile?.avatar || '🏏',
     favoriteTeamId: profile?.favorite_team || null,
   };
 
   const handleCreateRoom = async () => {
+    if (!isAuthenticated) {
+      setErrorMessage('You must be signed in to create an online room');
+      return;
+    }
     setIsLoading(true);
     setErrorMessage('');
     try {
@@ -63,6 +69,10 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
 
   const handleJoinRoomSubmit = async (e) => {
     e.preventDefault();
+    if (!isAuthenticated) {
+      setErrorMessage('You must be signed in to join an online room');
+      return;
+    }
     if (!joinCodeInput.trim()) {
       setErrorMessage('Please enter a 6-character room code');
       return;
@@ -110,6 +120,14 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
             <p className="text-xs text-slate-400 font-medium">Head-to-head multiplayer room setup</p>
           </div>
         </div>
+
+        {/* Authentication Notice */}
+        {!isAuthenticated && (
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-300 text-xs space-y-1">
+            <p className="font-bold">Sign In Required</p>
+            <p className="text-slate-400">You must be signed in to host or join online 2-player rooms across devices.</p>
+          </div>
+        )}
 
         {/* Error Notification */}
         {errorMessage && (

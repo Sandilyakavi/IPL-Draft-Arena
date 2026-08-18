@@ -1,11 +1,16 @@
 /**
  * src/services/multiplayerRoomService.js
  * =================================================================
- * MULTIPLAYER ROOM SERVICE (Phase 8 Step 2)
+ * MULTIPLAYER ROOM SERVICE (Phase 8 & 9 Production Hardened)
  * =================================================================
  * Manages Supabase `draft_rooms` queries, collision-safe 6-character room
  * code generation, 2-user room creation & joining, waiting room state,
  * host/guest role resolution, and Supabase Realtime subscriptions.
+ *
+ * PRODUCTION PERSISTENCE RULE:
+ * When Supabase is configured, all database writes (createRoom, joinRoom,
+ * fetchRoomByCode) operate strictly on the real database. Database errors
+ * throw explicit errors and ARE NOT silently masked with local memory state.
  *
  * PRESERVES 100% single-player local game state independence.
  * =================================================================
@@ -22,7 +27,7 @@ import {
   isUserTurn,
 } from '../multiplayer/multiplayerArchitecture.js';
 
-// In-memory fallback room store for demo/offline/testing mode when Supabase is unconfigured
+// Memory room cache for offline/testing mode when Supabase is not configured
 const memoryRooms = new Map();
 
 /**
@@ -48,7 +53,6 @@ export async function generateCollisionSafeRoomCode(client = supabase) {
           return code;
         }
       } catch (err) {
-        // Fallback to random if query fails
         if (!memoryRooms.has(code)) return code;
       }
     } else {
@@ -60,89 +64,88 @@ export async function generateCollisionSafeRoomCode(client = supabase) {
 }
 
 /**
- * Creates a new multiplayer draft room for host user
+ * Creates a new multiplayer draft room for host user.
+ * In production mode, writes strictly to Supabase and throws visible error on failure.
  */
 export async function createRoom(hostUser, season = '2026') {
   if (!hostUser || !hostUser.id) {
     throw new Error('Host user identity is required to create a multiplayer room');
+  }
+  if (hostUser.id === 'demo_user_123' || typeof hostUser.id !== 'string') {
+    throw new Error('You must be signed in with a valid account to create an online room');
   }
 
   const roomCode = await generateCollisionSafeRoomCode();
   const roomContract = createMultiplayerRoomContract(hostUser, roomCode, season);
 
   if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('draft_rooms')
-        .insert([
-          {
-            room_code: roomCode,
-            status: ROOM_STATUS.WAITING,
-            host_id: hostUser.id,
-            guest_id: null,
-            season,
-            current_turn_role: TURN_ROLES.HOST,
-            game_state: roomContract,
-          },
-        ])
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('draft_rooms')
+      .insert([
+        {
+          room_code: roomCode,
+          status: ROOM_STATUS.WAITING,
+          host_id: hostUser.id,
+          guest_id: null,
+          season,
+          current_turn_role: TURN_ROLES.HOST,
+          game_state: roomContract,
+        },
+      ])
+      .select()
+      .single();
 
-      if (error) {
-        console.warn('Supabase createRoom warning, using memory room:', error.message);
-        memoryRooms.set(roomCode, roomContract);
-      } else if (data) {
-        memoryRooms.set(roomCode, roomContract);
-        return roomContract;
-      }
-    } catch (err) {
-      console.warn('createRoom exception, falling back to memory room:', err.message);
-      memoryRooms.set(roomCode, roomContract);
+    if (error) {
+      throw new Error(`Failed to create room in production database: ${error.message}`);
     }
-  } else {
+
     memoryRooms.set(roomCode, roomContract);
+    return roomContract;
   }
 
+  memoryRooms.set(roomCode, roomContract);
   return roomContract;
 }
 
 /**
- * Fetches an existing room contract by 6-character room code
+ * Fetches an existing room contract by 6-character room code from production database
  */
 export async function fetchRoomByCode(roomCode) {
   if (!roomCode) return null;
   const cleanCode = roomCode.trim().toUpperCase();
 
   if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('draft_rooms')
-        .select('*')
-        .eq('room_code', cleanCode)
-        .maybeSingle();
+    const { data, error } = await supabase
+      .from('draft_rooms')
+      .select('*')
+      .eq('room_code', cleanCode)
+      .maybeSingle();
 
-      if (!error && data) {
-        const contract = data.game_state || {
-          roomCode: data.room_code,
-          status: data.status,
-          season: data.season,
-          host: { userId: data.host_id, role: TURN_ROLES.HOST },
-          guest: data.guest_id ? { userId: data.guest_id, role: TURN_ROLES.GUEST } : null,
-          currentTurnRole: data.current_turn_role || TURN_ROLES.HOST,
-        };
-        memoryRooms.set(cleanCode, contract);
-        return contract;
-      }
-    } catch (err) {
-      // Fallback
+    if (error) {
+      throw new Error(`Failed to fetch room from database: ${error.message}`);
     }
+
+    if (data) {
+      const contract = data.game_state || {
+        roomCode: data.room_code,
+        status: data.status,
+        season: data.season,
+        host: { userId: data.host_id, role: TURN_ROLES.HOST },
+        guest: data.guest_id ? { userId: data.guest_id, role: TURN_ROLES.GUEST } : null,
+        currentTurnRole: data.current_turn_role || TURN_ROLES.HOST,
+      };
+      memoryRooms.set(cleanCode, contract);
+      return contract;
+    }
+    return null;
   }
 
   return memoryRooms.get(cleanCode) || null;
 }
 
 /**
- * Joins a guest user to an existing waiting draft room
+ * Joins a guest user to an existing waiting draft room.
+ * In production mode, updates strictly in Supabase and throws visible error on failure.
  */
 export async function joinRoom(roomCode, guestUser) {
   if (!roomCode) {
@@ -150,6 +153,9 @@ export async function joinRoom(roomCode, guestUser) {
   }
   if (!guestUser || !guestUser.id) {
     throw new Error('Guest user identity is required to join a room');
+  }
+  if (guestUser.id === 'demo_user_123' || typeof guestUser.id !== 'string') {
+    throw new Error('You must be signed in with a valid account to join an online room');
   }
 
   const cleanCode = roomCode.trim().toUpperCase();
@@ -168,22 +174,18 @@ export async function joinRoom(roomCode, guestUser) {
   const updatedContract = joinMultiplayerRoomContract(roomContract, guestUser);
 
   if (isSupabaseConfigured && supabase) {
-    try {
-      const { error } = await supabase
-        .from('draft_rooms')
-        .update({
-          guest_id: guestUser.id,
-          status: ROOM_STATUS.IN_PROGRESS,
-          game_state: updatedContract,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('room_code', cleanCode);
+    const { error } = await supabase
+      .from('draft_rooms')
+      .update({
+        guest_id: guestUser.id,
+        status: ROOM_STATUS.IN_PROGRESS,
+        game_state: updatedContract,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('room_code', cleanCode);
 
-      if (error) {
-        console.warn('Supabase joinRoom update warning:', error.message);
-      }
-    } catch (err) {
-      console.warn('joinRoom exception:', err.message);
+    if (error) {
+      throw new Error(`Failed to join room in production database: ${error.message}`);
     }
   }
 
@@ -264,7 +266,7 @@ export async function reconnectRoom(roomCode, userId) {
 }
 
 /**
- * Helper to update memoryRooms entry
+ * Helper to update memoryRooms entry (for offline/test execution)
  */
 export function _setMemoryRoom(roomCode, contract) {
   if (!roomCode || !contract) return;
