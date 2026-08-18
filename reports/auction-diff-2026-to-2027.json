@@ -1,0 +1,19 @@
+{
+  "summary": {
+    "fromSeason": "2026",
+    "toSeason": "2027",
+    "totalExistingMaster": 253,
+    "totalExcelRows": 253,
+    "newPlayersCount": 0,
+    "removedPlayersCount": 0,
+    "transfersCount": 0,
+    "metadataChangesCount": 0,
+    "warningsCount": 0
+  },
+  "newPlayers": [],
+  "removedPlayers": [],
+  "franchiseTransfers": [],
+  "metadataChanges": [],
+  "warnings": [],
+  "generatedAt": "2026-08-18T11:50:35.301Z"
+}

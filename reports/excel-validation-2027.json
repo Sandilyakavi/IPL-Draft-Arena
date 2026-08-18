@@ -1,0 +1,19 @@
+{
+  "season": "2027",
+  "valid": true,
+  "errors": [],
+  "warnings": [
+    {
+      "code": "WARN_METADATA_MISMATCH",
+      "message": "CLI season (2027) differs from Metadata sheet season (2026)"
+    }
+  ],
+  "summary": {
+    "rows": 253,
+    "uniquePlayerIds": 253,
+    "newPlayers": 0,
+    "invalidTeams": 0,
+    "invalidRoles": 0,
+    "duplicateIds": 0
+  }
+}

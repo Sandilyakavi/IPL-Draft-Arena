@@ -1,0 +1,89 @@
+{
+  "_description": "SIMULATION FIXTURE — IPL Draft Arena 2027 Hypothetical Auction",
+  "_warning": "THIS IS A SIMULATION FIXTURE ONLY. Not real IPL data. Not for production use.",
+  "season": "2027",
+  "basedOn": "2026",
+
+  "caseA_newPlayer": {
+    "_case": "A",
+    "_desc": "Hypothetical new player added at the 2027 auction",
+    "player_id": "sim-aryan-kapoor-2027",
+    "player_name": "Sim Aryan Kapoor",
+    "team_id": "gt",
+    "role": "batter",
+    "nationality": "IND",
+    "is_overseas": false,
+    "is_wicketkeeper": false,
+    "season_2027_status": "active",
+    "source_url": null,
+    "notes": "SIMULATION ONLY — hypothetical 2027 auction addition"
+  },
+
+  "caseB_transfer": {
+    "_case": "B",
+    "_desc": "Existing player changes franchise from MI to RCB for 2027",
+    "player_id": "rohit-sharma",
+    "player_name": "Rohit Sharma",
+    "team_id_2026": "mi",
+    "team_id_2027": "rcb",
+    "role": "batter",
+    "nationality": "IND",
+    "is_overseas": false,
+    "is_wicketkeeper": false,
+    "season_2026_status": "2026-current-squad",
+    "season_2027_status": "active"
+  },
+
+  "caseC_unavailable": {
+    "_case": "C",
+    "_desc": "Existing player marked unavailable for 2027; 2026 record preserved",
+    "player_id": "ms-dhoni",
+    "player_name": "MS Dhoni",
+    "team_id": "csk",
+    "role": "wicketkeeper-batter",
+    "nationality": "IND",
+    "is_overseas": false,
+    "is_wicketkeeper": true,
+    "season_2026_status": "2026-current-squad",
+    "season_2027_status": "unavailable"
+  },
+
+  "caseD_metadataChange": {
+    "_case": "D",
+    "_desc": "Existing player has role changed; player_id remains the same",
+    "player_id": "hardik-pandya",
+    "player_name": "Hardik Pandya",
+    "team_id": "mi",
+    "role_2026": "all-rounder",
+    "role_2027": "bowler",
+    "nationality": "IND",
+    "is_overseas": false,
+    "is_wicketkeeper": false,
+    "season_2026_status": "2026-current-squad",
+    "season_2027_status": "active"
+  },
+
+  "caseE_unchanged": {
+    "_case": "E",
+    "_desc": "Player with no changes between 2026 and 2027",
+    "player_id": "virat-kohli",
+    "player_name": "Virat Kohli",
+    "team_id": "rcb",
+    "role": "batter",
+    "nationality": "IND",
+    "is_overseas": false,
+    "is_wicketkeeper": false,
+    "season_2026_status": "2026-current-squad",
+    "season_2027_status": "active"
+  },
+
+  "caseF_historicalIntact": {
+    "_case": "F",
+    "_desc": "2026 production data reference — must remain entirely unchanged",
+    "verifyIds": ["ruturaj-gaikwad", "ms-dhoni", "rohit-sharma", "virat-kohli", "hardik-pandya"],
+    "expectedMasterCount": 253,
+    "expected2026EligibleCount": 252,
+    "expectedRatingsCount": 506,
+    "expectedRatingsSeasons": ["2025", "2026"]
+  }
+}

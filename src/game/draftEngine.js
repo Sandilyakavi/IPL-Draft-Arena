@@ -1,5 +1,6 @@
 import { getDraftPool, getPlayerById, getDefaultRules } from '../utils/dataLoader.js';
 import { shuffleArray } from '../utils/shuffle.js';
+import { DEFAULT_SEASON } from '../config/seasonConfig.js';
 
 const defaultRules = getDefaultRules();
 import { validatePick, canSelectPlayer, getEligiblePlayers } from './ruleEngine.js';
@@ -67,6 +68,7 @@ export function createInitialGame(customRules = {}, setupConfig = {}) {
 
   return {
     status: 'setup', // 'setup' | 'spinning' | 'team-selected' | 'player-selection' | 'complete' | 'error'
+    season: setupConfig?.season || DEFAULT_SEASON,
     currentTurn: 'player1', // Default before start
     firstTurnResult: null,
     pickNumber: 0, // 0..24

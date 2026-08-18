@@ -9,7 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "import": "node scripts/import-from-excel.js",
+    "generate": "node scripts/import-from-excel.js",
+    "diff": "node scripts/diff-auction.js",
     "validate": "node scripts/validate.js",
+    "validate:excel": "node scripts/validate-excel.js",
+    "simulate:auction": "node scripts/simulate-auction-update.js",
     "test": "node scripts/test-game.js"
   },
   "dependencies": {

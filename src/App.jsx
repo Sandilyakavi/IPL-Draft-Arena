@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import AuthPage from './components/auth/AuthPage';
 import DraftPage from './pages/Draft';
 import DebugDashboard from './pages/DebugDashboard';
@@ -49,8 +50,10 @@ function AuthenticatedApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AuthenticatedApp />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AuthenticatedApp />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

@@ -1,4 +1,5 @@
 import { getDefaultRules, getAllTeams, getDraftPool } from '../utils/dataLoader.js';
+import { DEFAULT_SEASON } from '../config/seasonConfig.js';
 
 const defaultRules = getDefaultRules();
 const teams = getAllTeams();
@@ -99,7 +100,7 @@ export function canSelectPlayer(player, userSquad = [], gameState = {}, rulesCon
  * Gets all eligible players from a specific franchise for a user.
  * Uses 2026 draft pool (which already excludes unavailable/injured players like Ayush Mhatre).
  */
-export function getEligiblePlayers(teamId, userSquad = [], gameState = {}, rulesConfig = defaultRules, season = '2026') {
+export function getEligiblePlayers(teamId, userSquad = [], gameState = {}, rulesConfig = defaultRules, season = DEFAULT_SEASON) {
   const pool = getDraftPool(season);
   const teamPlayers = pool.filter(p => p.teamId === teamId);
   return teamPlayers.filter(p => canSelectPlayer(p, userSquad, gameState, rulesConfig));
@@ -108,7 +109,7 @@ export function getEligiblePlayers(teamId, userSquad = [], gameState = {}, rules
 /**
  * Gets all franchises that still have at least 1 eligible player for the user.
  */
-export function getEligibleTeams(userSquad = [], gameState = {}, rulesConfig = defaultRules, season = '2026') {
+export function getEligibleTeams(userSquad = [], gameState = {}, rulesConfig = defaultRules, season = DEFAULT_SEASON) {
   return teams.filter(team => {
     const eligible = getEligiblePlayers(team.id, userSquad, gameState, rulesConfig, season);
     return eligible.length > 0;

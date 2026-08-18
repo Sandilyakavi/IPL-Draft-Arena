@@ -1,0 +1,26 @@
+{
+  "simulationPassed": true,
+  "season": "2027",
+  "summary": {
+    "season": "2027",
+    "newPlayersDetected": 1,
+    "transfersDetected": 1,
+    "unavailableDetected": 1,
+    "metadataChangesDetected": 1,
+    "validationErrors": 0,
+    "idStabilityOk": true,
+    "team2026Preserved": true,
+    "team2027Added": true,
+    "unavailableInMaster": true,
+    "newPlayerAdded": true,
+    "historicalIntegrityOk": true,
+    "ratings2026Count": 253,
+    "ratings2025Count": 253,
+    "fabricatedFutureRatings": 0,
+    "productionFilesUnchanged": true,
+    "metaIdStable": true,
+    "metaRoleChanged": true,
+    "unchangedOk": true,
+    "cleanupOk": true
+  }
+}

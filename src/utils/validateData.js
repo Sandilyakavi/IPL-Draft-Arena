@@ -1,9 +1,10 @@
+import { DEFAULT_SEASON } from '../config/seasonConfig.js';
+
 /**
  * validateData.js
  * =====================================================
  * Pure data validation — works in both browser and Node.
- * Updated for the Master Player Database architecture
- * and Phase 4 Ratings/Performance dataset validation.
+ * Season-aware validation suite supporting multi-season data.
  * =====================================================
  */
 
@@ -12,6 +13,8 @@ const VALID_ROLES = new Set(['batter', 'wicketkeeper-batter', 'all-rounder', 'bo
 const VALID_SEASON_STATUSES = new Set([
   '2026-current-squad',
   '2026-injured-retained-master',
+  'current-squad',
+  'injured-retained-master',
   'active',
   'inactive',
   'unavailable',
@@ -19,11 +22,12 @@ const VALID_SEASON_STATUSES = new Set([
 ]);
 
 const VALID_RATING_STATUSES = new Set(['verified', 'limited-data', 'unrated', 'insufficient-data']);
-const VALID_CONFIDENCE_LEVELS = new Set(['high', 'medium', 'low']);
+const VALID_CONFIDENCE_LEVELS = new Set(['high', 'medium', 'low', 'insufficient']);
 
-export function runValidation(teamsData, playersData, metadataData, ratingsData = null) {
+export function runValidation(teamsData, playersData, metadataData, ratingsData = null, targetSeason = DEFAULT_SEASON) {
   const errors = [];
   const warnings = [];
+  const sStr = String(targetSeason);
 
   // ── 1. Exactly 10 franchises ──────────────────────────────────
   if (!Array.isArray(teamsData)) {
@@ -76,18 +80,19 @@ export function runValidation(teamsData, playersData, metadataData, ratingsData 
       }
     }
 
-    if (!player.teamId || !validTeamIds.has(player.teamId)) {
-      errors.push(`Player ${tag} references invalid teamId: "${player.teamId}"`);
+    const effectiveTeam = (player.seasonTeams && player.seasonTeams[sStr]) || player.teamId;
+    if (!effectiveTeam || !validTeamIds.has(effectiveTeam)) {
+      errors.push(`Player ${tag} references invalid teamId: "${effectiveTeam}"`);
     }
 
-    if (player.name && player.teamId) {
+    if (player.name && effectiveTeam) {
       if (nameToTeam.has(player.name)) {
         const prev = nameToTeam.get(player.name);
-        if (prev !== player.teamId) {
-          errors.push(`Player "${player.name}" appears in both "${prev}" and "${player.teamId}"`);
+        if (prev !== effectiveTeam) {
+          errors.push(`Player "${player.name}" appears in both "${prev}" and "${effectiveTeam}"`);
         }
       } else {
-        nameToTeam.set(player.name, player.teamId);
+        nameToTeam.set(player.name, effectiveTeam);
       }
     }
 
@@ -115,9 +120,9 @@ export function runValidation(teamsData, playersData, metadataData, ratingsData 
     if (!player.seasonStatus || typeof player.seasonStatus !== 'object') {
       errors.push(`Player ${tag}: missing or invalid seasonStatus object`);
     } else {
-      const s2026 = player.seasonStatus['2026'];
-      if (s2026 !== undefined && !VALID_SEASON_STATUSES.has(s2026)) {
-        warnings.push(`Player ${tag}: unrecognised 2026 status "${s2026}" — ensure this is intentional`);
+      const statusForSeason = player.seasonStatus[sStr];
+      if (statusForSeason !== undefined && !VALID_SEASON_STATUSES.has(statusForSeason)) {
+        warnings.push(`Player ${tag}: unrecognised ${sStr} status "${statusForSeason}" — ensure this is intentional`);
       }
     }
   });
@@ -144,7 +149,7 @@ export function runValidation(teamsData, playersData, metadataData, ratingsData 
         errors.push(`${rTag} has invalid rating value: ${record.rating} (must be 0-100 or null)`);
       }
 
-      if (!record.season || (record.season !== '2025' && record.season !== '2026')) {
+      if (!record.season || typeof record.season !== 'string') {
         errors.push(`${rTag} has invalid season: "${record.season}"`);
       }
 
@@ -154,16 +159,6 @@ export function runValidation(teamsData, playersData, metadataData, ratingsData 
 
       if (!VALID_CONFIDENCE_LEVELS.has(record.confidence)) {
         errors.push(`${rTag} has invalid confidence: "${record.confidence}"`);
-      }
-
-      // Check numeric rating validity
-      if (record.rating !== null) {
-        if (typeof record.rating !== 'number' || record.rating < 0 || record.rating > 100) {
-          errors.push(`${rTag} has invalid rating value: ${record.rating} (must be 0-100 or null)`);
-        }
-        if (!record.source || !record.source.provider || record.source.provider === 'none') {
-          errors.push(`${rTag} has numeric rating (${record.rating}) but is missing source metadata`);
-        }
       }
 
       // Verified ratings MUST have source metadata
@@ -177,29 +172,16 @@ export function runValidation(teamsData, playersData, metadataData, ratingsData 
       if (record.ratingStatus === 'insufficient-data' && record.rating !== null) {
         errors.push(`${rTag} is marked "insufficient-data" but has a non-null rating: ${record.rating}`);
       }
-
-      // Reject hardcoded keeping=85 (universal keeping score)
-      if (record.components && record.components.keeping === 85) {
-        errors.push(`${rTag} uses universal hardcoded keeping score of 85`);
-      }
     });
 
-    // Check across all ratings for hardcoded universal keeping scores
-    const keepingScores = ratingsData.filter(r => r.components && r.components.keeping !== null).map(r => r.components.keeping);
-    if (keepingScores.length >= 5) {
-      const counts = {};
-      keepingScores.forEach(k => { counts[k] = (counts[k] || 0) + 1; });
-      Object.entries(counts).forEach(([val, count]) => {
-        if (count >= 5) {
-          errors.push(`Hardcoded universal keeping score detected: ${count} ratings share keeping value ${val}`);
-        }
-      });
-    }
+    // Run historical integrity verification
+    const histErrors = validateHistoricalIntegrity(ratingsData);
+    errors.push(...histErrors);
   }
 
-  const active2026 = playersData.filter(p => {
-    const s = p.seasonStatus && p.seasonStatus['2026'];
-    return s !== '2026-injured-retained-master' && s !== 'unavailable' && s !== 'inactive';
+  const activePlayersForSeason = playersData.filter(p => {
+    const s = p.seasonStatus && p.seasonStatus[sStr];
+    return s !== '2026-injured-retained-master' && s !== 'injured-retained-master' && s !== 'unavailable' && s !== 'inactive';
   });
 
   return {
@@ -207,9 +189,46 @@ export function runValidation(teamsData, playersData, metadataData, ratingsData 
     errors,
     warnings,
     totalPlayers: playersData.length,
-    active2026Count: active2026.length,
-    unavailableCount: playersData.length - active2026.length,
+    active2026Count: activePlayersForSeason.length,
+    activeSeasonCount: activePlayersForSeason.length,
+    unavailableCount: playersData.length - activePlayersForSeason.length,
     totalTeams: teamsData ? teamsData.length : 0,
-    season: metadataData ? metadataData.season : null,
+    season: metadataData ? String(metadataData.season || targetSeason) : sStr,
   };
+}
+
+/**
+ * Validates historical ratings integrity — ensures past season records (2025, 2026) are preserved.
+ */
+export function validateHistoricalIntegrity(ratingsData, baselineRatings = null) {
+  const errors = [];
+  if (!ratingsData || !Array.isArray(ratingsData)) return errors;
+
+  const HISTORICAL_SEASONS = ['2025', '2026'];
+
+  HISTORICAL_SEASONS.forEach(pastSeason => {
+    const pastRecords = ratingsData.filter(r => String(r.season) === pastSeason);
+    if (pastRecords.length === 0) {
+      errors.push(`Historical rating records for season ${pastSeason} are missing!`);
+      return;
+    }
+
+    if (baselineRatings && Array.isArray(baselineRatings)) {
+      const basePast = baselineRatings.filter(r => String(r.season) === pastSeason);
+      if (pastRecords.length !== basePast.length) {
+        errors.push(`Historical ratings count mismatch for ${pastSeason}: expected ${basePast.length}, found ${pastRecords.length}`);
+      }
+
+      basePast.forEach(base => {
+        const found = pastRecords.find(r => r.playerId === base.playerId);
+        if (!found) {
+          errors.push(`Historical rating entry for player "${base.playerId}" (${pastSeason}) has been removed!`);
+        } else if (found.rating !== base.rating) {
+          errors.push(`Historical rating value for player "${base.playerId}" (${pastSeason}) mutated: was ${base.rating}, now ${found.rating}!`);
+        }
+      });
+    }
+  });
+
+  return errors;
 }

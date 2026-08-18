@@ -4,6 +4,7 @@
  */
 
 import playerRatingsData from '../data/playerRatings.json' with { type: 'json' };
+import { DEFAULT_SEASON } from '../config/seasonConfig.js';
 
 /**
  * Calculates normalized batting rating (0–100).
@@ -80,7 +81,7 @@ export function calculateWicketkeeperRating(stats) {
 /**
  * Computes player quality evaluation object for a specific player and season.
  */
-export function calculateOverallPlayerQuality(player, stats, season = '2026') {
+export function calculateOverallPlayerQuality(player, stats, season = DEFAULT_SEASON) {
   if (!player) return null;
 
   // Check pre-calculated verified ratings if present
@@ -143,7 +144,7 @@ export function calculateOverallPlayerQuality(player, stats, season = '2026') {
 /**
  * Returns player rating object for a given playerId and season.
  */
-export function getPlayerRating(playerId, season = '2026') {
+export function getPlayerRating(playerId, season = DEFAULT_SEASON) {
   const record = playerRatingsData.find(r => r.playerId === playerId && String(r.season) === String(season));
   if (record) return record;
 
@@ -160,7 +161,7 @@ export function getPlayerRating(playerId, season = '2026') {
 /**
  * Calculates aggregate squad quality score normalized to 0–70 points.
  */
-export function getSquadQualityScore(squad = [], season = '2026') {
+export function getSquadQualityScore(squad = [], season = DEFAULT_SEASON) {
   if (!squad || squad.length === 0) {
     return {
       qualityScore: 0,

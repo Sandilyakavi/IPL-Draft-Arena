@@ -4,6 +4,7 @@
  */
 
 import { getSquadQualityScore, getPlayerRating } from './playerRatingEngine.js';
+import { DEFAULT_SEASON } from '../config/seasonConfig.js';
 import teams from '../data/teams.json' with { type: 'json' };
 
 /**
@@ -98,7 +99,7 @@ export function getScoreLabel(finalScore) {
 /**
  * Evaluates full squad score (Quality 70 + Balance 30 = Total 100).
  */
-export function evaluateSquad(squad = [], season = '2026') {
+export function evaluateSquad(squad = [], season = DEFAULT_SEASON) {
   const quality = getSquadQualityScore(squad, season);
   const balance = calculateSquadBalance(squad);
 
@@ -182,7 +183,7 @@ export function generateWeaknesses(squad, quality, balance) {
 /**
  * Determines structural Best Playing XI (11 players) and bench (1 player).
  */
-export function getBestPlayingXI(squad = [], season = '2026') {
+export function getBestPlayingXI(squad = [], season = DEFAULT_SEASON) {
   if (!squad || squad.length === 0) {
     return { playingXI: [], bench: [], explanation: ['Squad is empty.'] };
   }

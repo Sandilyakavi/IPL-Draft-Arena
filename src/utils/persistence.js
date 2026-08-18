@@ -23,11 +23,15 @@ export function loadGameSession() {
     if (typeof window !== 'undefined' && window.localStorage) {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        // Basic shape validation to protect against corrupted or legacy localStorage data
+        if (parsed && typeof parsed === 'object' && parsed.status && parsed.squads) {
+          return parsed;
+        }
       }
     }
   } catch (err) {
-    // Fail silently
+    // Fail silently on corrupt JSON or storage error
   }
   return null;
 }

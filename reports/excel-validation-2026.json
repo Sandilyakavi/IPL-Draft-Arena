@@ -1,0 +1,14 @@
+{
+  "season": "2026",
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "summary": {
+    "rows": 253,
+    "uniquePlayerIds": 253,
+    "newPlayers": 0,
+    "invalidTeams": 0,
+    "invalidRoles": 0,
+    "duplicateIds": 0
+  }
+}

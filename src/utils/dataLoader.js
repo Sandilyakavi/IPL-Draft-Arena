@@ -13,6 +13,7 @@ import players from '../data/players.json' with { type: 'json' };
 import rules from '../data/rules.json' with { type: 'json' };
 import metadata from '../data/metadata.json' with { type: 'json' };
 import { runValidation } from './validateData.js';
+import { DEFAULT_SEASON, getSeasonConfig } from '../config/seasonConfig.js';
 
 // ──────────────────────────────────────────────────────
 // SEASON AVAILABILITY HELPERS
@@ -20,6 +21,7 @@ import { runValidation } from './validateData.js';
 
 const UNAVAILABLE_STATUSES = new Set([
   '2026-injured-retained-master',
+  'injured-retained-master',
   'unavailable',
   'unavailable-injured',
   'inactive',
@@ -28,11 +30,38 @@ const UNAVAILABLE_STATUSES = new Set([
 /**
  * Returns true if a player is eligible for the draft in the given season.
  * A player in the MASTER DATABASE may exist but be ineligible for a specific season.
+ *
+ * Supports season-specific status checks and backward compatibility.
  */
-export function isPlayerEligible(player, season = '2026') {
-  const status = player.seasonStatus && player.seasonStatus[season];
-  if (status === undefined) return true; // no explicit status → eligible by default
-  return !UNAVAILABLE_STATUSES.has(status);
+export function isPlayerEligible(player, season = DEFAULT_SEASON) {
+  if (!player) return false;
+  const sStr = String(season);
+
+  // Check season-specific status object if present
+  const status = player.seasonStatus && player.seasonStatus[sStr];
+  if (status !== undefined) {
+    return !UNAVAILABLE_STATUSES.has(status);
+  }
+
+  // If season data does not exist yet (e.g. future season), default to true unless player is overall inactive
+  if (player.notes === 'Injured' || player.notes === 'Unavailable') {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Gets a player's franchise/team ID for a specific season.
+ * Allows player identity (playerId) to be permanent while franchise can vary per season.
+ */
+export function getPlayerTeamForSeason(player, season = DEFAULT_SEASON) {
+  if (!player) return null;
+  const sStr = String(season);
+  if (player.seasonTeams && player.seasonTeams[sStr]) {
+    return player.seasonTeams[sStr];
+  }
+  return player.teamId; // Fallback to primary teamId
 }
 
 // ──────────────────────────────────────────────────────
@@ -40,6 +69,10 @@ export function isPlayerEligible(player, season = '2026') {
 // ──────────────────────────────────────────────────────
 export function getMetadata() {
   return metadata;
+}
+
+export function getCurrentSeason() {
+  return DEFAULT_SEASON;
 }
 
 // ──────────────────────────────────────────────────────
@@ -64,8 +97,8 @@ export function getPlayerById(playerId) {
   return players.find(p => p.id === playerId) || null;
 }
 
-export function getPlayersByTeam(teamId) {
-  return players.filter(p => p.teamId === teamId);
+export function getPlayersByTeam(teamId, season = DEFAULT_SEASON) {
+  return players.filter(p => getPlayerTeamForSeason(p, season) === teamId);
 }
 
 // ──────────────────────────────────────────────────────
@@ -74,19 +107,18 @@ export function getPlayersByTeam(teamId) {
 
 /**
  * Returns the draft-eligible player pool for the given season.
- * This is the set of players that will appear in the IPL Draft Arena game.
  * Injured / unavailable players are EXCLUDED from the pool
  * but remain in the master database.
  */
-export function getDraftPool(season = '2026') {
+export function getDraftPool(season = DEFAULT_SEASON) {
   return players.filter(p => isPlayerEligible(p, season));
 }
 
 /**
  * Returns draft-eligible players for a specific team in a given season.
  */
-export function getDraftPoolByTeam(teamId, season = '2026') {
-  return getDraftPool(season).filter(p => p.teamId === teamId);
+export function getDraftPoolByTeam(teamId, season = DEFAULT_SEASON) {
+  return getDraftPool(season).filter(p => getPlayerTeamForSeason(p, season) === teamId);
 }
 
 // ──────────────────────────────────────────────────────
@@ -101,10 +133,10 @@ export function getDefaultRules() {
 // ──────────────────────────────────────────────────────
 
 /**
- * Per-team stats including both master count and eligible count.
+ * Per-team stats including both master count and eligible count for a season.
  */
-export function getTeamStats(teamId, season = '2026') {
-  const allTeamPlayers = getPlayersByTeam(teamId);
+export function getTeamStats(teamId, season = DEFAULT_SEASON) {
+  const allTeamPlayers = getPlayersByTeam(teamId, season);
   const eligiblePlayers = allTeamPlayers.filter(p => isPlayerEligible(p, season));
 
   const roles = (pool) => ({
@@ -120,7 +152,7 @@ export function getTeamStats(teamId, season = '2026') {
     eligibleCount: eligiblePlayers.length,
     unavailableCount: allTeamPlayers.length - eligiblePlayers.length,
     unavailablePlayers: allTeamPlayers.filter(p => !isPlayerEligible(p, season)).map(p => ({
-      id: p.id, name: p.name, status: p.seasonStatus?.[season] || 'unknown'
+      id: p.id, name: p.name, status: p.seasonStatus?.[String(season)] || 'unknown'
     })),
     indianCount:      eligiblePlayers.filter(p => !p.isOverseas).length,
     overseasCount:    eligiblePlayers.filter(p => p.isOverseas).length,
@@ -130,9 +162,9 @@ export function getTeamStats(teamId, season = '2026') {
 }
 
 /**
- * Overall dataset summary used by the DebugDashboard.
+ * Overall dataset summary used by the DebugDashboard and reports.
  */
-export function getOverallSummary(season = '2026') {
+export function getOverallSummary(season = DEFAULT_SEASON) {
   const pool = getDraftPool(season);
   const masterAll = getAllPlayers();
 
@@ -154,6 +186,6 @@ export function getOverallSummary(season = '2026') {
     wicketkeepers:   pool.filter(p => p.isWicketkeeper).length,
     teamSummaries,
     validationResult,
-    season,
+    season: String(season),
   };
 }

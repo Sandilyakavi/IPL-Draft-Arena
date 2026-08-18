@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, ArrowLeft, KeyRound, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 /**
  * ForgotPasswordView Component — Password reset request view.
+ * Phase 7A: submission guard, rate-limit awareness, email normalization.
  */
 export default function ForgotPasswordView({ onSwitchView }) {
   const { resetPassword } = useAuth();
@@ -12,22 +13,27 @@ export default function ForgotPasswordView({ onSwitchView }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const submitGuard = useRef(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || isSubmitting) return;
+    if (!email.trim() || isSubmitting || submitGuard.current) return;
 
+    submitGuard.current = true;
     setIsSubmitting(true);
     setErrorMsg(null);
     setSuccessMsg(null);
 
-    const res = await resetPassword(email);
-    setIsSubmitting(false);
-
-    if (!res.success) {
-      setErrorMsg(res.error || 'Failed to send reset email.');
-    } else {
-      setSuccessMsg('Password reset instructions sent! Please check your email inbox.');
+    try {
+      const res = await resetPassword(email.trim());
+      if (!res.success) {
+        setErrorMsg(res.error || 'Failed to send reset email. Please try again.');
+      } else {
+        setSuccessMsg('Password reset instructions sent! Please check your email inbox (and spam folder).');
+      }
+    } finally {
+      setIsSubmitting(false);
+      submitGuard.current = false;
     }
   };
 
@@ -39,56 +45,55 @@ export default function ForgotPasswordView({ onSwitchView }) {
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2">
+        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2" role="alert" aria-live="polite">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2">
+        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2" role="status" aria-live="polite">
           <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
           <span>{successMsg}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Email */}
-        <div className="space-y-1 text-left">
-          <label htmlFor="forgot-email-input" className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-            Registered Email Address
-          </label>
-          <div className="relative">
-            <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
-            <input
-              id="forgot-email-input"
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="coach@ipldraft.com"
-              className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition-all"
-            />
+      {!successMsg && (
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <div className="space-y-1 text-left">
+            <label htmlFor="forgot-email-input" className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+              Registered Email Address
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+              <input
+                id="forgot-email-input"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={e => { setEmail(e.target.value); setErrorMsg(null); }}
+                placeholder="coach@ipldraft.com"
+                className="w-full bg-slate-950/90 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition-all"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={isSubmitting || !email}
-          className="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 disabled:opacity-40 disabled:pointer-events-none text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 active:scale-95"
-        >
-          {isSubmitting ? (
-            <span className="animate-pulse">SENDING RESET LINK...</span>
-          ) : (
-            <>
-              <KeyRound className="w-4 h-4" /> SEND RESET LINK
-            </>
-          )}
-        </button>
-      </form>
+          <button
+            type="submit"
+            id="forgot-submit-btn"
+            disabled={isSubmitting || !email.trim()}
+            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 disabled:opacity-40 disabled:pointer-events-none text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 active:scale-95"
+          >
+            {isSubmitting ? (
+              <span className="animate-pulse">SENDING RESET LINK...</span>
+            ) : (
+              <><KeyRound className="w-4 h-4" /> SEND RESET LINK</>
+            )}
+          </button>
+        </form>
+      )}
 
-      {/* Back to Login Link */}
       <div className="text-center pt-2">
         <button
           type="button"
