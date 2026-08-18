@@ -26,10 +26,17 @@ import RuleTracker from '../components/rules/RuleTracker';
 import DraftHistory from '../components/history/DraftHistory';
 import DraftComplete from '../components/game/DraftComplete';
 
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Globe, Users, Copy, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { executeMultiplayerSpin, executeMultiplayerPick, syncRoomState } from '../services/multiplayerSyncService';
+import { subscribeToRoom } from '../services/multiplayerRoomService';
+import { isUserTurn, resolveUserRole, ROOM_STATUS } from '../multiplayer/multiplayerArchitecture';
 
 export default function DraftPage({ onToggleDashboard, showDebug = false }) {
+  const [isMultiplayerMode, setIsMultiplayerMode] = useState(false);
+  const [multiplayerRoom, setMultiplayerRoom] = useState(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+
   // Initialize game state from local persistence if available, else default setup state
   const [gameState, setGameState] = useState(() => {
     const saved = loadGameSession();
@@ -44,32 +51,68 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [lastPickBanner, setLastPickBanner] = useState(null);
 
+  let authUser = null;
   let authProfile = null;
   let refreshProfile = null;
   try {
     const auth = useAuth();
+    authUser = auth?.user;
     authProfile = auth?.profile;
     refreshProfile = auth?.refreshProfile;
   } catch (err) {
     // Graceful fallback when rendered in isolated test environment
   }
 
-  // Persist game state to localStorage whenever it updates
+  const currentUserId = authUser?.id || 'demo_user_123';
+
+  // Persist game state to localStorage ONLY when in Single-Player Mode
   useEffect(() => {
-    if (gameState) {
+    if (gameState && !isMultiplayerMode) {
       saveGameSession(gameState);
     }
-  }, [gameState]);
+  }, [gameState, isMultiplayerMode]);
+
+  // Subscribe to Realtime room updates when in Multiplayer Mode
+  useEffect(() => {
+    if (!isMultiplayerMode || !multiplayerRoom?.roomCode) return;
+
+    const unsub = subscribeToRoom(
+      multiplayerRoom.roomCode,
+      (updatedRoomContract) => {
+        if (updatedRoomContract) {
+          setMultiplayerRoom(updatedRoomContract);
+          if (updatedRoomContract.gameStateSnapshot) {
+            setGameState(updatedRoomContract.gameStateSnapshot);
+          }
+        }
+      }
+    );
+
+    return () => unsub();
+  }, [isMultiplayerMode, multiplayerRoom?.roomCode]);
 
   const activeUser = getCurrentPlayer(gameState);
   const progress = getDraftProgress(gameState);
   const draftFinished = isDraftComplete(gameState);
   const eligibleTeams = getEligibleTeams(gameState);
 
+  const userRole = isMultiplayerMode ? resolveUserRole(multiplayerRoom, currentUserId) : 'player1';
+  const isMyTurn = isMultiplayerMode
+    ? isUserTurn(multiplayerRoom, currentUserId, gameState?.currentTurn)
+    : true;
+
   // ── Handle Start Draft from Setup ─────────────────────────────
-  const handleStartDraft = useCallback((configuredState) => {
-    setGameState(configuredState);
-    saveGameSession(configuredState);
+  const handleStartDraft = useCallback((initialStateOrContract, isMultiplayer = false) => {
+    if (isMultiplayer) {
+      setIsMultiplayerMode(true);
+      setMultiplayerRoom(initialStateOrContract);
+      setGameState(initialStateOrContract.gameStateSnapshot || createInitialGame({}, { season: initialStateOrContract.season }));
+    } else {
+      setIsMultiplayerMode(false);
+      setMultiplayerRoom(null);
+      setGameState(initialStateOrContract);
+      saveGameSession(initialStateOrContract);
+    }
     setIsSpinning(false);
     setSpinError(null);
     setRotationDegrees(0);
@@ -78,8 +121,31 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   }, []);
 
   // ── Handle Spin Action ─────────────────────────────────────────
-  const handleSpin = useCallback(() => {
+  const handleSpin = useCallback(async () => {
     if (isSpinning || draftFinished) return;
+    if (isMultiplayerMode && !isMyTurn) return;
+
+    if (isMultiplayerMode) {
+      try {
+        setIsSpinning(true);
+        setSpinError(null);
+        const res = await executeMultiplayerSpin(multiplayerRoom.roomCode, currentUserId);
+        const updatedState = res.roomContract.gameStateSnapshot;
+        const selectedTeamId = res.spunTeamId;
+        setTargetTeamId(selectedTeamId);
+        setRotationDegrees(prev => getTargetRotation(selectedTeamId, prev, 5));
+
+        setTimeout(() => {
+          setGameState(updatedState);
+          setMultiplayerRoom(res.roomContract);
+          setIsSpinning(false);
+        }, 2500);
+      } catch (err) {
+        setSpinError(err.message || 'Multiplayer spin error');
+        setIsSpinning(false);
+      }
+      return;
+    }
 
     // 1. Calculate wheel engine result (Single Source of Truth)
     const res = spinTeam(gameState);
@@ -109,22 +175,41 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
       setGameState(res.updatedGameState);
       setIsSpinning(false);
     }, 2500);
-  }, [gameState, isSpinning, draftFinished]);
+  }, [gameState, isSpinning, draftFinished, isMultiplayerMode, isMyTurn, multiplayerRoom, currentUserId]);
 
   // ── Handle Select Pending Player ────────────────────────────────
   const handleSelectPending = useCallback((playerId) => {
     if (draftFinished || isSpinning) return;
+    if (isMultiplayerMode && !isMyTurn) return;
 
     const res = selectPendingPlayer(gameState, playerId);
     if (res.success) {
       setGameState(res.updatedGameState);
     }
-  }, [gameState, draftFinished, isSpinning]);
+  }, [gameState, draftFinished, isSpinning, isMultiplayerMode, isMyTurn]);
 
-  // ── Handle Confirm Pick ─────────────────────────────────────────
-  const handleConfirmPick = useCallback((playerId) => {
-    if (draftFinished || isSpinning || !playerId) return;
+  // ── Handle Confirm Pick Action ──────────────────────────────────
+  const handleConfirmPick = useCallback(async (playerId) => {
+    if (draftFinished || isSpinning) return;
+    if (isMultiplayerMode && !isMyTurn) return;
 
+    if (isMultiplayerMode) {
+      try {
+        const res = await executeMultiplayerPick(
+          multiplayerRoom.roomCode,
+          currentUserId,
+          playerId || gameState.pendingSelectedPlayerId
+        );
+        setGameState(res.roomContract.gameStateSnapshot);
+        setMultiplayerRoom(res.roomContract);
+        return;
+      } catch (err) {
+        setSpinError(err.message || 'Multiplayer pick error');
+      }
+      return;
+    }
+
+    if (!playerId) return;
     const currentTurnUser = getCurrentPlayer(gameState);
     const selectedPlayerObj = gameState.currentEligiblePlayers.find(p => p.id === playerId);
 
@@ -215,6 +300,41 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
       {/* MAIN CONTAINER */}
       <div className="max-w-7xl mx-auto px-4 pt-6 space-y-6">
 
+        {/* MULTIPLAYER ROOM & TURN BANNER */}
+        {isMultiplayerMode && multiplayerRoom && (
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400">
+                <Globe className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-amber-400 font-black uppercase tracking-wider">Online 2-Player Match</span>
+                  <span className="px-2 py-0.5 bg-slate-800 text-white font-mono text-xs font-bold rounded">
+                    Room: {multiplayerRoom.roomCode}
+                  </span>
+                </div>
+                <h4 className="font-extrabold text-white text-sm">
+                  {multiplayerRoom.host?.username || 'Host'} vs {multiplayerRoom.guest?.username || 'Guest'}
+                </h4>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {isMyTurn ? (
+                <span className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-amber-500/20 animate-pulse flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+                  YOUR TURN TO {gameState?.status === 'player-selection' ? 'PICK PLAYER' : 'SPIN WHEEL'}
+                </span>
+              ) : (
+                <span className="px-4 py-2 bg-slate-800 border border-slate-700 text-slate-400 font-extrabold text-xs uppercase tracking-wider rounded-xl">
+                  OPPONENT'S TURN (WAITING...)
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* PICK CONFIRMATION TOAST BANNER */}
         {lastPickBanner && (
           <div className="bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/90 border border-emerald-500/50 rounded-2xl p-4 shadow-2xl flex items-center justify-between animate-fadeIn">
@@ -256,7 +376,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
                 eligibleTeams={eligibleTeams}
                 onSpin={handleSpin}
                 isSpinning={isSpinning}
-                disabled={draftFinished || gameState.status === 'player-selection'}
+                disabled={draftFinished || gameState.status === 'player-selection' || (isMultiplayerMode && !isMyTurn)}
                 respinNotice={gameState.respinNotice}
                 errorMessage={spinError || (gameState.status === 'error' ? gameState.message : null)}
               />
@@ -272,7 +392,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
                 onSelectPending={handleSelectPending}
                 onConfirmPick={handleConfirmPick}
                 isSpinning={isSpinning}
-                disabled={draftFinished || gameState.status !== 'player-selection'}
+                disabled={draftFinished || gameState.status !== 'player-selection' || (isMultiplayerMode && !isMyTurn)}
                 currentTurnUser={activeUser}
               />
               <DraftHistory pickHistory={gameState.pickHistory} />

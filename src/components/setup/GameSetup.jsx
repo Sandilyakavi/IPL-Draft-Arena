@@ -5,11 +5,23 @@ import RulesPreview from './RulesPreview';
 import { createInitialGame, startGame, DEFAULT_AVATARS } from '../../game/draftEngine.js';
 import { Trophy, Sparkles, ArrowRight, ArrowLeft, Play, ShieldAlert, Dice5, CheckCircle2 } from 'lucide-react';
 
+import { useAuth } from '../../context/AuthContext';
+import MultiplayerRoomModal from '../multiplayer/MultiplayerRoomModal';
+import { Users, Globe } from 'lucide-react';
+
 /**
  * GameSetup Component — Landing Hero Screen & Setup Flow for IPL Draft Arena.
  */
 export default function GameSetup({ onStartDraft, initialConfig = null }) {
   const [viewMode, setViewMode] = useState('landing'); // 'landing' | 'setup'
+  const [gameMode, setGameMode] = useState('local'); // 'local' | 'multiplayer'
+  const [isMultiplayerModalOpen, setIsMultiplayerModalOpen] = useState(false);
+
+  let authUser = null;
+  try {
+    const auth = useAuth();
+    authUser = auth?.user;
+  } catch (err) {}
 
   // Player identity setup state
   const [p1Config, setP1Config] = useState(() => ({
@@ -48,7 +60,7 @@ export default function GameSetup({ onStartDraft, initialConfig = null }) {
 
   const isValidSetup = !p1Error && !p2Error && p1Trimmed.length > 0 && p2Trimmed.length > 0;
 
-  // Handle Confirm & Start Draft
+  // Handle Confirm & Start Draft (Local Single-Player Mode)
   const handleConfirmAndStart = () => {
     if (!isValidSetup || isRevealing) return;
 
@@ -74,8 +86,13 @@ export default function GameSetup({ onStartDraft, initialConfig = null }) {
 
     setTimeout(() => {
       setIsRevealing(false);
-      onStartDraft(activeState);
+      onStartDraft(activeState, false);
     }, 1600);
+  };
+
+  const handleMultiplayerRoomReady = (roomContract) => {
+    setIsMultiplayerModalOpen(false);
+    onStartDraft(roomContract, true);
   };
 
   return (
@@ -125,18 +142,35 @@ export default function GameSetup({ onStartDraft, initialConfig = null }) {
               <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">252 DRAFT POOL</div>
             </div>
 
-            {/* Primary Action */}
-            <div className="pt-4">
+            {/* Primary Action Buttons: Local Pass & Play vs Online Multiplayer */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
                 type="button"
                 onClick={() => setViewMode('setup')}
-                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-base rounded-2xl transition-all shadow-xl shadow-cyan-500/25 flex items-center justify-center gap-2 mx-auto active:scale-95"
+                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-base rounded-2xl transition-all shadow-xl shadow-cyan-500/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
               >
-                SET UP DRAFT <ArrowRight className="w-5 h-5" />
+                <Users className="w-5 h-5" />
+                <span>PASS & PLAY (LOCAL)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsMultiplayerModalOpen(true)}
+                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-base rounded-2xl transition-all shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              >
+                <Globe className="w-5 h-5" />
+                <span>ONLINE 2-PLAYER</span>
               </button>
             </div>
           </div>
         )}
+
+        {/* Multiplayer Room Modal */}
+        <MultiplayerRoomModal
+          isOpen={isMultiplayerModalOpen}
+          onClose={() => setIsMultiplayerModalOpen(false)}
+          onRoomReady={handleMultiplayerRoomReady}
+        />
 
         {/* ── SETUP FORM VIEW ─────────────────────────────────────── */}
         {viewMode === 'setup' && (
