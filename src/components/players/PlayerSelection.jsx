@@ -1,7 +1,8 @@
 import React from 'react';
 import PlayerAvatar from '../common/PlayerAvatar';
 import TeamLogo from '../common/TeamLogo';
-import { UserCheck, Globe, Check, ChevronRight, Disc } from 'lucide-react';
+import { getPlayerRating } from '../../game/playerRatingEngine.js';
+import { UserCheck, Globe, Check, ChevronRight, Star } from 'lucide-react';
 
 const ROLE_BADGES = {
   batter: { label: 'Batter', cls: 'bg-sky-500/10 text-sky-300 border-sky-500/20' },
@@ -11,7 +12,7 @@ const ROLE_BADGES = {
 };
 
 /**
- * Player Selection Component — Trading card style grid displaying eligible players.
+ * Player Selection Component — Trading card style grid displaying eligible players & ratings.
  */
 export default function PlayerSelection({
   currentTeamId,
@@ -22,6 +23,7 @@ export default function PlayerSelection({
   isSpinning = false,
   disabled = false,
   currentTurnUser = null,
+  season = '2026',
 }) {
   if (!currentTeamId) {
     return (
@@ -76,6 +78,7 @@ export default function PlayerSelection({
           {eligiblePlayers.map(player => {
             const isSelected = player.id === pendingSelectedPlayerId;
             const roleBadge = ROLE_BADGES[player.role] || { label: player.role, cls: 'bg-slate-800 text-slate-300' };
+            const rObj = getPlayerRating(player.id, season);
 
             return (
               <div
@@ -104,6 +107,17 @@ export default function PlayerSelection({
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${roleBadge.cls}`}>
                         {roleBadge.label}
                       </span>
+
+                      {/* Verified Quality Score Badge */}
+                      {rObj && rObj.rating !== null ? (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                          <Star className="w-2.5 h-2.5 fill-amber-300" /> {rObj.rating}
+                        </span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                          UNRATED
+                        </span>
+                      )}
 
                       {player.isOverseas ? (
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">

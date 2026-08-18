@@ -1,4 +1,5 @@
 import { getAllTeams } from '../utils/dataLoader.js';
+import { shuffleArray } from '../utils/shuffle.js';
 import {
   getEligibleTeams as ruleGetEligibleTeams,
   getEligiblePlayers as ruleGetEligiblePlayers,
@@ -88,7 +89,8 @@ export function spinTeam(gameState, randomFn = Math.random) {
   }
 
   const selectedTeamObj = teams.find(t => t.id === selectedTeamId);
-  const eligiblePlayers = getEligiblePlayers(selectedTeamId, userSquad, gameState);
+  const rawEligible = getEligiblePlayers(selectedTeamId, userSquad, gameState);
+  const eligiblePlayers = shuffleArray(rawEligible, randomFn);
 
   const spinNumber = (gameState.spinHistory || []).length + 1;
   const spinRecord = {

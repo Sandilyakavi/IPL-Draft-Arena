@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   createInitialGame,
   startGame,
@@ -8,13 +8,17 @@ import {
   getCurrentPlayer,
   getDraftProgress,
   isDraftComplete,
+  updateSquadOrder,
 } from '../game/draftEngine.js';
 
 import { getEligibleTeams } from '../game/wheelEngine.js';
 import { getTargetRotation } from '../utils/wheelGeometry.js';
+import { saveGameSession, loadGameSession } from '../utils/persistence.js';
 
+import GameSetup from '../components/setup/GameSetup';
 import Header from '../components/common/Header';
 import Modal from '../components/common/Modal';
+import ProfileModal from '../components/profile/ProfileModal';
 import TeamWheel from '../components/wheel/TeamWheel';
 import PlayerSelection from '../components/players/PlayerSelection';
 import SquadDisplay from '../components/squad/SquadDisplay';
@@ -22,21 +26,56 @@ import RuleTracker from '../components/rules/RuleTracker';
 import DraftHistory from '../components/history/DraftHistory';
 import DraftComplete from '../components/game/DraftComplete';
 
-import { CheckCircle2, UserCheck, Sparkles } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function DraftPage({ onToggleDashboard, showDebug = false }) {
-  const [gameState, setGameState] = useState(() => startGame(createInitialGame()));
+  // Initialize game state from local persistence if available, else default setup state
+  const [gameState, setGameState] = useState(() => {
+    const saved = loadGameSession();
+    return saved || createInitialGame();
+  });
+
   const [isSpinning, setIsSpinning] = useState(false);
   const [spinError, setSpinError] = useState(null);
   const [rotationDegrees, setRotationDegrees] = useState(0);
   const [targetTeamId, setTargetTeamId] = useState(null);
   const [showRestartModal, setShowRestartModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [lastPickBanner, setLastPickBanner] = useState(null);
+
+  let authProfile = null;
+  let refreshProfile = null;
+  try {
+    const auth = useAuth();
+    authProfile = auth?.profile;
+    refreshProfile = auth?.refreshProfile;
+  } catch (err) {
+    // Graceful fallback when rendered in isolated test environment
+  }
+
+  // Persist game state to localStorage whenever it updates
+  useEffect(() => {
+    if (gameState) {
+      saveGameSession(gameState);
+    }
+  }, [gameState]);
 
   const activeUser = getCurrentPlayer(gameState);
   const progress = getDraftProgress(gameState);
   const draftFinished = isDraftComplete(gameState);
   const eligibleTeams = getEligibleTeams(gameState);
+
+  // ── Handle Start Draft from Setup ─────────────────────────────
+  const handleStartDraft = useCallback((configuredState) => {
+    setGameState(configuredState);
+    saveGameSession(configuredState);
+    setIsSpinning(false);
+    setSpinError(null);
+    setRotationDegrees(0);
+    setTargetTeamId(null);
+    setLastPickBanner(null);
+  }, []);
 
   // ── Handle Spin Action ─────────────────────────────────────────
   const handleSpin = useCallback(() => {
@@ -99,6 +138,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
           playerName: selectedPlayerObj.name,
           teamId: selectedPlayerObj.teamId.toUpperCase(),
           userName: currentTurnUser.name,
+          userAvatar: currentTurnUser.avatar,
         });
 
         setTimeout(() => {
@@ -110,7 +150,9 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
 
   // ── Reset / New Game ───────────────────────────────────────────
   const handleConfirmReset = useCallback(() => {
-    setGameState(startGame(createInitialGame()));
+    const freshState = createInitialGame();
+    setGameState(freshState);
+    saveGameSession(freshState);
     setIsSpinning(false);
     setSpinError(null);
     setRotationDegrees(0);
@@ -119,6 +161,21 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
     setLastPickBanner(null);
   }, []);
 
+  // ── Handle Squad Order Rearranging ─────────────────────────────
+  const handleUpdateSquadOrder = useCallback((playerKey, newOrder) => {
+    setGameState(prev => updateSquadOrder(prev, playerKey, newOrder));
+  }, []);
+
+  // If in setup status, render pre-game setup flow
+  if (!gameState || gameState.status === 'setup') {
+    return (
+      <GameSetup
+        onStartDraft={handleStartDraft}
+        initialConfig={gameState?.setup}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#070b12] text-slate-100 font-sans pb-12">
 
@@ -126,17 +183,30 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
       <Header
         pickProgress={{ currentPick: progress.pickNumber, totalPicks: progress.totalPicks }}
         currentTurnUser={activeUser}
+        player1Name={gameState.player1?.name || 'Player 1'}
+        player2Name={gameState.player2?.name || 'Player 2'}
         onOpenRestartModal={() => setShowRestartModal(true)}
+        onOpenProfileModal={() => setShowProfileModal(true)}
         onToggleDebug={onToggleDashboard}
         showDebug={showDebug}
+      />
+
+      {/* USER PROFILE MODAL */}
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        profile={authProfile}
+        onProfileUpdated={() => {
+          if (refreshProfile) refreshProfile();
+        }}
       />
 
       {/* CONFIRMATION RESTART MODAL */}
       <Modal
         isOpen={showRestartModal}
         title="RESTART DRAFT ARENA?"
-        message="Current draft progress and player selections will be reset. Are you sure you want to start a fresh game?"
-        confirmLabel="RESTART GAME"
+        message="Your current draft progress will be lost. Are you sure you want to start a new draft?"
+        confirmLabel="NEW DRAFT"
         cancelLabel="CANCEL"
         onConfirm={handleConfirmReset}
         onCancel={() => setShowRestartModal(false)}
@@ -154,8 +224,10 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
               </div>
               <div>
                 <p className="text-[10px] text-emerald-400 font-black uppercase tracking-wider">Player Drafted Successfully</p>
-                <h4 className="font-black text-white text-sm">
-                  {lastPickBanner.playerName} <span className="text-slate-400 font-normal">({lastPickBanner.teamId})</span> — Drafted by {lastPickBanner.userName}
+                <h4 className="font-black text-white text-sm flex items-center gap-1.5">
+                  <span>{lastPickBanner.userAvatar}</span>
+                  <span>{lastPickBanner.playerName}</span>
+                  <span className="text-slate-400 font-normal">({lastPickBanner.teamId})</span> — Drafted by {lastPickBanner.userName}
                 </h4>
               </div>
             </div>
@@ -212,6 +284,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
                 player1={gameState.player1}
                 player2={gameState.player2}
                 currentTurn={gameState.currentTurn}
+                onUpdateSquadOrder={handleUpdateSquadOrder}
               />
             </div>
           </div>

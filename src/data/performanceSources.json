@@ -1,0 +1,38 @@
+{
+  "sources": [
+    {
+      "id": "cricsheet-ipl",
+      "provider": "cricsheet",
+      "type": "ball-by-ball",
+      "url": "https://cricsheet.org/downloads/ipl_json.zip",
+      "description": "Cricsheet IPL ball-by-ball JSON match data. All deliveries recorded per batter and bowler.",
+      "seasons": [
+        "2025",
+        "2026"
+      ],
+      "lastAccessed": "2026-08-18",
+      "license": "CC BY-SA 4.0 (https://cricsheet.org/license/)"
+    }
+  ],
+  "methodology": {
+    "batting": "Aggregated across all deliveries faced. SR = (runs/balls)*100. Average = runs/dismissals (null if never dismissed).",
+    "bowling": "Aggregated across all deliveries bowled (wides excluded from balls count). Economy = (runs/balls)*6. Average = runs/wickets (null if 0 wickets).",
+    "minimumSampleBatting": "3 innings required for verified status",
+    "minimumSampleBowling": "18 balls (3 overs) required for verified status",
+    "keepingData": "Keeping dismissals not included — Cricsheet ball-by-ball does not track keeper dismissals separately in a consistently parseable way.",
+    "normalization": {
+      "batting": {
+        "runs": "min=0, max=550 (best single-season IPL performances)",
+        "strikeRate": "min=100, max=170 (T20 context baseline)",
+        "average": "min=15, max=50",
+        "innings": "min=0, max=14"
+      },
+      "bowling": {
+        "wickets": "min=0, max=22",
+        "economy": "inversely normalized: best=6.0, worst=11.5",
+        "average": "inversely normalized: best=15, worst=45",
+        "strikeRate": "inversely normalized: best=13, worst=35"
+      }
+    }
+  }
+}

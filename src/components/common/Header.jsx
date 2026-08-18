@@ -1,6 +1,7 @@
 import React from 'react';
 import ProgressBar from './ProgressBar';
-import { RotateCcw, Bug, Trophy, Shield } from 'lucide-react';
+import { RotateCcw, Bug, Trophy, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * Header Component — Premium sports game application header.
@@ -8,12 +9,25 @@ import { RotateCcw, Bug, Trophy, Shield } from 'lucide-react';
 export default function Header({
   pickProgress = { currentPick: 1, totalPicks: 24 },
   currentTurnUser = null,
+  player1Name = 'Player 1',
+  player2Name = 'Player 2',
   onOpenRestartModal,
+  onOpenProfileModal,
   onToggleDebug,
   showDebug = false,
 }) {
   const currentPick = pickProgress.currentPick || 1;
   const totalPicks = pickProgress.totalPicks || 24;
+
+  let logoutFn = null;
+  let userProfile = null;
+  try {
+    const auth = useAuth();
+    logoutFn = auth?.logout;
+    userProfile = auth?.profile;
+  } catch (err) {
+    // Graceful fallback if Header is rendered outside AuthProvider in isolated tests
+  }
 
   return (
     <header className="bg-slate-900/90 border-b border-slate-800/80 sticky top-0 z-40 backdrop-blur-md shadow-xl">
@@ -33,7 +47,9 @@ export default function Header({
                 2026 Season
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium">Player 1 vs Player 2 — Local Draft Arena</p>
+            <p className="text-[11px] text-slate-400 font-medium">
+              {player1Name} vs {player2Name} — Local Draft Arena
+            </p>
           </div>
         </div>
 
@@ -52,7 +68,8 @@ export default function Header({
               <span className="text-[9px] uppercase font-extrabold text-slate-500 block">Current Turn</span>
               <span className="text-xs font-black text-white flex items-center gap-1.5 justify-end">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                {currentTurnUser.name}
+                <span className="text-sm">{currentTurnUser.avatar || (currentTurnUser.id === 'player1' ? '🏏' : '⚡')}</span>
+                <span>{currentTurnUser.name}</span>
               </span>
             </div>
           )}
@@ -60,6 +77,18 @@ export default function Header({
 
         {/* Actions Controls */}
         <div className="flex items-center gap-2">
+          {/* Profile Button */}
+          {onOpenProfileModal && (
+            <button
+              onClick={onOpenProfileModal}
+              className="px-3 py-2 bg-slate-950 hover:bg-slate-800 text-cyan-300 rounded-xl text-xs font-extrabold transition-all border border-slate-800 hover:border-slate-700 flex items-center gap-1.5 active:scale-95 shadow-sm"
+              title="View & Edit User Profile"
+            >
+              <span className="text-sm">{userProfile?.avatar || '🏏'}</span>
+              <span className="hidden md:inline font-mono">@{userProfile?.username || 'profile'}</span>
+            </button>
+          )}
+
           {/* Restart Button */}
           <button
             onClick={onOpenRestartModal}
@@ -83,6 +112,18 @@ export default function Header({
             <Bug className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{showDebug ? 'Close Debug' : 'Debug'}</span>
           </button>
+
+          {/* Logout Button */}
+          {logoutFn && (
+            <button
+              onClick={logoutFn}
+              className="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-xl text-xs font-extrabold transition-all border border-rose-500/30 flex items-center gap-1.5 active:scale-95 shadow-sm"
+              title="Sign Out of IPL Draft Arena"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-400" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

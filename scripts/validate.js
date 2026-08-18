@@ -1,6 +1,6 @@
 /**
  * scripts/validate.js — Node CLI validation runner
- * Reads the JSON data files and runs the full validation suite.
+ * Reads JSON data files and runs full validation suite.
  */
 import fs from 'fs';
 import path from 'path';
@@ -14,6 +14,7 @@ try {
   const teams    = JSON.parse(fs.readFileSync(path.join(DATA, 'teams.json'), 'utf8'));
   const players  = JSON.parse(fs.readFileSync(path.join(DATA, 'players.json'), 'utf8'));
   const metadata = JSON.parse(fs.readFileSync(path.join(DATA, 'metadata.json'), 'utf8'));
+  const ratings  = JSON.parse(fs.readFileSync(path.join(DATA, 'playerRatings.json'), 'utf8'));
 
   console.log('═'.repeat(50));
   console.log('  IPL Draft Arena — Data Validation Suite');
@@ -23,8 +24,9 @@ try {
   console.log(`  Last Verified:   ${metadata.lastVerified}`);
   console.log(`  Total Teams:     ${teams.length}`);
   console.log(`  Master Players:  ${players.length}`);
+  console.log(`  Ratings Records: ${ratings.length}`);
 
-  const result = runValidation(teams, players, metadata);
+  const result = runValidation(teams, players, metadata, ratings);
   console.log(`  2026 Eligible:   ${result.active2026Count}`);
   console.log(`  2026 Unavail:    ${result.unavailableCount}`);
 

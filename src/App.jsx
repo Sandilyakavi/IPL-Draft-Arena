@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import AuthPage from './components/auth/AuthPage';
 import DraftPage from './pages/Draft';
 import DebugDashboard from './pages/DebugDashboard';
 import { Gamepad2 } from 'lucide-react';
 
-export default function App() {
+function AuthenticatedApp() {
+  const { user } = useAuth();
   const [currentView, setCurrentView] = useState('game'); // 'game' | 'dashboard'
+
+  // Route protection: If unauthenticated, show AuthPage (Login/SignUp/Demo)
+  if (!user) {
+    return <AuthPage />;
+  }
 
   return (
     <div className="min-h-screen bg-[#070b12]">
@@ -36,5 +44,13 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
   );
 }

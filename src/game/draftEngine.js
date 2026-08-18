@@ -1,4 +1,5 @@
 import { getDraftPool, getPlayerById, getDefaultRules } from '../utils/dataLoader.js';
+import { shuffleArray } from '../utils/shuffle.js';
 
 const defaultRules = getDefaultRules();
 import { validatePick, canSelectPlayer, getEligiblePlayers } from './ruleEngine.js';
@@ -12,27 +13,97 @@ import { spinTeam as wheelSpinTeam, getEligibleTeams } from './wheelEngine.js';
 /**
  * Creates the initial game state structure.
  */
-export function createInitialGame(customRules = {}, player1Name = 'Player 1', player2Name = 'Player 2') {
+export const DEFAULT_AVATARS = ['🏏', '⚡', '🔥', '👑', '🦁', '🐯', '🦅', '🐼'];
+
+/**
+ * Creates the initial game state structure with setup configuration.
+ */
+export function createInitialGame(customRules = {}, setupConfig = {}) {
   const rules = { ...defaultRules, ...customRules };
+
+  let p1Name = 'Player 1';
+  let p2Name = 'Player 2';
+  let p1Avatar = '🏏';
+  let p2Avatar = '⚡';
+  let p1Fav = null;
+  let p2Fav = null;
+  let firstTurnChoice = 'player1';
+
+  // Support string arguments for backward compatibility with existing tests
+  if (typeof setupConfig === 'string') {
+    p1Name = setupConfig;
+    if (arguments[2] && typeof arguments[2] === 'string') {
+      p2Name = arguments[2];
+    }
+  } else if (arguments[1] && typeof arguments[1] === 'string') {
+    p1Name = arguments[1];
+    if (arguments[2] && typeof arguments[2] === 'string') {
+      p2Name = arguments[2];
+    }
+  } else if (setupConfig && typeof setupConfig === 'object') {
+    if (setupConfig.player1) {
+      if (typeof setupConfig.player1 === 'string') p1Name = setupConfig.player1;
+      else {
+        p1Name = setupConfig.player1.name || 'Player 1';
+        p1Avatar = setupConfig.player1.avatar || '🏏';
+        p1Fav = setupConfig.player1.favoriteTeamId || null;
+      }
+    }
+    if (setupConfig.player2) {
+      if (typeof setupConfig.player2 === 'string') p2Name = setupConfig.player2;
+      else {
+        p2Name = setupConfig.player2.name || 'Player 2';
+        p2Avatar = setupConfig.player2.avatar || '⚡';
+        p2Fav = setupConfig.player2.favoriteTeamId || null;
+      }
+    }
+    if (setupConfig.firstTurn) {
+      firstTurnChoice = setupConfig.firstTurn;
+    }
+  }
+
+  p1Name = (p1Name || '').trim() || 'Player 1';
+  p2Name = (p2Name || '').trim() || 'Player 2';
 
   return {
     status: 'setup', // 'setup' | 'spinning' | 'team-selected' | 'player-selection' | 'complete' | 'error'
-    currentTurn: 'player1', // 'player1' | 'player2'
+    currentTurn: 'player1', // Default before start
+    firstTurnResult: null,
     pickNumber: 0, // 0..24
+    setup: {
+      player1: {
+        name: p1Name,
+        avatar: p1Avatar,
+        favoriteTeamId: p1Fav,
+      },
+      player2: {
+        name: p2Name,
+        avatar: p2Avatar,
+        favoriteTeamId: p2Fav,
+      },
+      firstTurn: firstTurnChoice,
+      completed: false,
+    },
     player1: {
       id: 'player1',
-      name: player1Name,
+      name: p1Name,
+      avatar: p1Avatar,
+      favoriteTeamId: p1Fav,
       squad: [],
+      squadOrder: [],
     },
     player2: {
       id: 'player2',
-      name: player2Name,
+      name: p2Name,
+      avatar: p2Avatar,
+      favoriteTeamId: p2Fav,
       squad: [],
+      squadOrder: [],
     },
-    selectedPlayerIds: [], // Globally drafted player IDs
-    currentTeamId: null, // Spun franchise ID
-    currentEligiblePlayers: [], // Filtered eligible player objects for current turn
-    pendingSelectedPlayerId: null, // Player ID selected before confirmation
+    selectedPlayerIds: [],
+    currentTeamId: null,
+    currentEligiblePlayers: [],
+    pendingSelectedPlayerId: null,
     pickHistory: [],
     spinHistory: [],
     respinNotice: null,
@@ -42,13 +113,52 @@ export function createInitialGame(customRules = {}, player1Name = 'Player 1', pl
 }
 
 /**
- * Starts the draft game. Moves status from 'setup' to 'spinning'.
+ * Starts the draft game. Resolves first turn and moves status from 'setup' to 'spinning'.
  */
-export function startGame(gameState) {
+export function startGame(gameState, randomFn = Math.random) {
   if (!gameState) gameState = createInitialGame();
+
+  const p1Name = (gameState.setup?.player1?.name || gameState.player1?.name || 'Player 1').trim() || 'Player 1';
+  const p2Name = (gameState.setup?.player2?.name || gameState.player2?.name || 'Player 2').trim() || 'Player 2';
+  const p1Avatar = gameState.setup?.player1?.avatar || gameState.player1?.avatar || '🏏';
+  const p2Avatar = gameState.setup?.player2?.avatar || gameState.player2?.avatar || '⚡';
+  const p1Fav = gameState.setup?.player1?.favoriteTeamId || gameState.player1?.favoriteTeamId || null;
+  const p2Fav = gameState.setup?.player2?.favoriteTeamId || gameState.player2?.favoriteTeamId || null;
+
+  // Resolve first turn choice
+  const firstTurnChoice = gameState.setup?.firstTurn || 'random';
+  let firstTurnKey = 'player1';
+
+  if (firstTurnChoice === 'player1') {
+    firstTurnKey = 'player1';
+  } else if (firstTurnChoice === 'player2') {
+    firstTurnKey = 'player2';
+  } else {
+    // 'random'
+    firstTurnKey = randomFn() < 0.5 ? 'player1' : 'player2';
+  }
+
   return {
     ...gameState,
     status: 'spinning',
+    currentTurn: firstTurnKey,
+    firstTurnResult: firstTurnKey,
+    setup: {
+      ...gameState.setup,
+      completed: true,
+    },
+    player1: {
+      ...gameState.player1,
+      name: p1Name,
+      avatar: p1Avatar,
+      favoriteTeamId: p1Fav,
+    },
+    player2: {
+      ...gameState.player2,
+      name: p2Name,
+      avatar: p2Avatar,
+      favoriteTeamId: p2Fav,
+    },
     error: null,
     respinNotice: null,
   };
@@ -84,13 +194,14 @@ export function spinTeam(gameState, randomFn = Math.random) {
 /**
  * Manually applies a team spin result (useful for deterministic actions or tests).
  */
-export function applyTeamResult(gameState, teamId) {
+export function applyTeamResult(gameState, teamId, randomFn = Math.random) {
   if (!gameState) return gameState;
   const currentUserKey = gameState.currentTurn;
   const currentUser = gameState[currentUserKey];
   const userSquad = currentUser ? currentUser.squad : [];
 
-  const eligiblePlayers = getEligiblePlayers(teamId, userSquad, gameState, gameState.rules);
+  const rawEligible = getEligiblePlayers(teamId, userSquad, gameState, gameState.rules);
+  const eligiblePlayers = shuffleArray(rawEligible, randomFn);
 
   return {
     ...gameState,
@@ -197,13 +308,18 @@ export function confirmPick(gameState, playerId = null) {
     isWicketkeeper: player.isWicketkeeper,
     user: currentUserKey,
     userName: currentUser.name,
+    userAvatar: currentUser.avatar || (currentUserKey === 'player1' ? '🏏' : '⚡'),
     timestamp: new Date().toISOString(),
   };
 
-  // 4. Update current user squad
+  // 4. Update current user squad and squadOrder
+  const currentSquadOrder = currentUser.squadOrder || currentUser.squad.map(p => p.id);
+  const updatedSquadOrder = [...currentSquadOrder, player.id];
+
   const updatedUser = {
     ...currentUser,
     squad: [...currentUser.squad, player],
+    squadOrder: updatedSquadOrder,
   };
 
   const nextPickNumber = pickNumber;
@@ -301,4 +417,36 @@ export function getDraftProgress(gameState) {
  */
 export function getPickHistory(gameState) {
   return gameState?.pickHistory || [];
+}
+
+/**
+ * Updates squad presentation order for a player without altering canonical squad or pick history.
+ *
+ * @param {Object} gameState - Current game state
+ * @param {string} playerKey - 'player1' or 'player2'
+ * @param {Array<string>} newSquadOrder - Array of player IDs representing new order
+ * @returns {Object} Updated immutable game state
+ */
+export function updateSquadOrder(gameState, playerKey, newSquadOrder) {
+  if (!gameState || !gameState[playerKey]) return gameState;
+  const user = gameState[playerKey];
+  const squad = user.squad || [];
+
+  if (!Array.isArray(newSquadOrder)) return gameState;
+
+  // Verify newSquadOrder contains exact same set of player IDs
+  const squadIdSet = new Set(squad.map(p => p.id));
+  const newIdSet = new Set(newSquadOrder);
+
+  if (squadIdSet.size !== newIdSet.size || ![...squadIdSet].every(id => newIdSet.has(id))) {
+    return gameState; // Ignore invalid reorder attempt
+  }
+
+  return {
+    ...gameState,
+    [playerKey]: {
+      ...user,
+      squadOrder: [...newSquadOrder],
+    },
+  };
 }

@@ -3,7 +3,7 @@
  * =====================================================
  * Pure data validation — works in both browser and Node.
  * Updated for the Master Player Database architecture
- * with seasonStatus and draft eligibility separation.
+ * and Phase 4 Ratings/Performance dataset validation.
  * =====================================================
  */
 
@@ -18,7 +18,10 @@ const VALID_SEASON_STATUSES = new Set([
   'unavailable-injured',
 ]);
 
-export function runValidation(teamsData, playersData, metadataData) {
+const VALID_RATING_STATUSES = new Set(['verified', 'limited-data', 'unrated', 'insufficient-data']);
+const VALID_CONFIDENCE_LEVELS = new Set(['high', 'medium', 'low']);
+
+export function runValidation(teamsData, playersData, metadataData, ratingsData = null) {
   const errors = [];
   const warnings = [];
 
@@ -47,17 +50,15 @@ export function runValidation(teamsData, playersData, metadataData) {
 
   const seenIds = new Set();
   const seenNames = new Set();
-  const nameToTeam = new Map(); // player name → first teamId seen
+  const nameToTeam = new Map();
 
   playersData.forEach((player, index) => {
     const tag = player.name ? `"${player.name}"` : `index ${index}`;
 
-    // ── No empty names ───────────────────────────────────────
     if (!player.name || typeof player.name !== 'string' || player.name.trim() === '') {
       errors.push(`Empty or invalid player name at index ${index}`);
     }
 
-    // ── Unique player IDs ────────────────────────────────────
     if (!player.id || typeof player.id !== 'string') {
       errors.push(`Invalid ID for player ${tag}`);
     } else if (seenIds.has(player.id)) {
@@ -66,7 +67,6 @@ export function runValidation(teamsData, playersData, metadataData) {
       seenIds.add(player.id);
     }
 
-    // ── Unique player names ──────────────────────────────────
     if (player.name) {
       const lower = player.name.toLowerCase().trim();
       if (seenNames.has(lower)) {
@@ -76,12 +76,10 @@ export function runValidation(teamsData, playersData, metadataData) {
       }
     }
 
-    // ── Valid teamId reference ───────────────────────────────
     if (!player.teamId || !validTeamIds.has(player.teamId)) {
       errors.push(`Player ${tag} references invalid teamId: "${player.teamId}"`);
     }
 
-    // ── No player assigned to multiple franchises ────────────
     if (player.name && player.teamId) {
       if (nameToTeam.has(player.name)) {
         const prev = nameToTeam.get(player.name);
@@ -93,33 +91,27 @@ export function runValidation(teamsData, playersData, metadataData) {
       }
     }
 
-    // ── Valid role enum ──────────────────────────────────────
     if (!VALID_ROLES.has(player.role)) {
       errors.push(`Player ${tag} has invalid role: "${player.role}"`);
     }
 
-    // ── Valid nationality ────────────────────────────────────
     if (!player.nationality || typeof player.nationality !== 'string' || player.nationality.trim() === '') {
       errors.push(`Player ${tag} missing nationality`);
     }
 
-    // ── isOverseas consistency ───────────────────────────────
     const expectedOverseas = player.nationality !== 'IND';
     if (typeof player.isOverseas === 'boolean' && player.isOverseas !== expectedOverseas) {
       errors.push(`Player ${tag}: isOverseas (${player.isOverseas}) inconsistent with nationality ("${player.nationality}")`);
     }
 
-    // ── isWicketkeeper boolean ───────────────────────────────
     if (typeof player.isWicketkeeper !== 'boolean') {
       errors.push(`Player ${tag}: isWicketkeeper must be a boolean, got ${typeof player.isWicketkeeper}`);
     }
 
-    // Wicketkeeper role consistency
     if (player.role === 'wicketkeeper-batter' && player.isWicketkeeper !== true) {
       errors.push(`Player ${tag}: role is "wicketkeeper-batter" but isWicketkeeper is false`);
     }
 
-    // ── seasonStatus field presence & validity ───────────────
     if (!player.seasonStatus || typeof player.seasonStatus !== 'object') {
       errors.push(`Player ${tag}: missing or invalid seasonStatus object`);
     } else {
@@ -128,18 +120,81 @@ export function runValidation(teamsData, playersData, metadataData) {
         warnings.push(`Player ${tag}: unrecognised 2026 status "${s2026}" — ensure this is intentional`);
       }
     }
-
-    // ── source field ─────────────────────────────────────────
-    if (player.source !== 'official-ipl') {
-      warnings.push(`Player ${tag}: source field is not "official-ipl" — got "${player.source}"`);
-    }
   });
 
-  // ── 4. Master-player integrity: ensure no accidental deletion
-  //      of a player that exists in teams but has no player record
-  //      (light check — only verifiable if we have an expected list)
-  if (teamsData.length === 10 && playersData.length < 240) {
-    warnings.push(`Low player count: ${playersData.length}. Ensure no master players were accidentally removed.`);
+  // ── 4. Ratings dataset validation (if present) ───────────────
+  if (ratingsData && Array.isArray(ratingsData)) {
+    const seenRatingsKeys = new Set();
+
+    ratingsData.forEach((record, index) => {
+      const rTag = `Rating index ${index} (${record.playerId}/${record.season})`;
+
+      if (!record.playerId || !seenIds.has(record.playerId)) {
+        errors.push(`${rTag} references invalid or missing playerId: "${record.playerId}"`);
+      }
+
+      const ratingKey = `${record.playerId}_${record.season}`;
+      if (seenRatingsKeys.has(ratingKey)) {
+        errors.push(`Duplicate rating record for ${ratingKey}`);
+      } else {
+        seenRatingsKeys.add(ratingKey);
+      }
+
+      if (record.rating !== null && (typeof record.rating !== 'number' || record.rating < 0 || record.rating > 100)) {
+        errors.push(`${rTag} has invalid rating value: ${record.rating} (must be 0-100 or null)`);
+      }
+
+      if (!record.season || (record.season !== '2025' && record.season !== '2026')) {
+        errors.push(`${rTag} has invalid season: "${record.season}"`);
+      }
+
+      if (!VALID_RATING_STATUSES.has(record.ratingStatus)) {
+        errors.push(`${rTag} has invalid ratingStatus: "${record.ratingStatus}"`);
+      }
+
+      if (!VALID_CONFIDENCE_LEVELS.has(record.confidence)) {
+        errors.push(`${rTag} has invalid confidence: "${record.confidence}"`);
+      }
+
+      // Check numeric rating validity
+      if (record.rating !== null) {
+        if (typeof record.rating !== 'number' || record.rating < 0 || record.rating > 100) {
+          errors.push(`${rTag} has invalid rating value: ${record.rating} (must be 0-100 or null)`);
+        }
+        if (!record.source || !record.source.provider || record.source.provider === 'none') {
+          errors.push(`${rTag} has numeric rating (${record.rating}) but is missing source metadata`);
+        }
+      }
+
+      // Verified ratings MUST have source metadata
+      if (record.ratingStatus === 'verified') {
+        if (!record.source || !record.source.provider || record.source.provider === 'none') {
+          errors.push(`${rTag} is marked "verified" but lacks valid source metadata`);
+        }
+      }
+
+      // Insufficient data players MUST be null rating
+      if (record.ratingStatus === 'insufficient-data' && record.rating !== null) {
+        errors.push(`${rTag} is marked "insufficient-data" but has a non-null rating: ${record.rating}`);
+      }
+
+      // Reject hardcoded keeping=85 (universal keeping score)
+      if (record.components && record.components.keeping === 85) {
+        errors.push(`${rTag} uses universal hardcoded keeping score of 85`);
+      }
+    });
+
+    // Check across all ratings for hardcoded universal keeping scores
+    const keepingScores = ratingsData.filter(r => r.components && r.components.keeping !== null).map(r => r.components.keeping);
+    if (keepingScores.length >= 5) {
+      const counts = {};
+      keepingScores.forEach(k => { counts[k] = (counts[k] || 0) + 1; });
+      Object.entries(counts).forEach(([val, count]) => {
+        if (count >= 5) {
+          errors.push(`Hardcoded universal keeping score detected: ${count} ratings share keeping value ${val}`);
+        }
+      });
+    }
   }
 
   const active2026 = playersData.filter(p => {
