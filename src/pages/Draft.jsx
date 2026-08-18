@@ -106,7 +106,29 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
     if (isMultiplayer) {
       setIsMultiplayerMode(true);
       setMultiplayerRoom(initialStateOrContract);
-      setGameState(initialStateOrContract.gameStateSnapshot || createInitialGame({}, { season: initialStateOrContract.season }));
+      const activeState =
+        initialStateOrContract.gameStateSnapshot && initialStateOrContract.gameStateSnapshot.status !== 'setup'
+          ? initialStateOrContract.gameStateSnapshot
+          : startGame(
+              createInitialGame(
+                {},
+                {
+                  player1: {
+                    name: initialStateOrContract.host?.username || 'Host Player',
+                    avatar: initialStateOrContract.host?.avatar || '🏏',
+                    favoriteTeamId: initialStateOrContract.host?.favoriteTeamId || null,
+                  },
+                  player2: {
+                    name: initialStateOrContract.guest?.username || 'Guest Player',
+                    avatar: initialStateOrContract.guest?.avatar || '⚡',
+                    favoriteTeamId: initialStateOrContract.guest?.favoriteTeamId || null,
+                  },
+                  firstTurn: 'player1',
+                  season: initialStateOrContract.season || '2026',
+                }
+              )
+            );
+      setGameState(activeState);
     } else {
       setIsMultiplayerMode(false);
       setMultiplayerRoom(null);

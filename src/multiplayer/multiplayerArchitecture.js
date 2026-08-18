@@ -11,6 +11,8 @@
  * =================================================================
  */
 
+import { createInitialGame, startGame } from '../game/draftEngine.js';
+
 // 1. Room Lifecycle Constants
 export const ROOM_STATUS = {
   WAITING: 'waiting_for_opponent',
@@ -105,6 +107,28 @@ export function joinMultiplayerRoomContract(roomContract, guestUser) {
   };
   updatedContract.status = ROOM_STATUS.IN_PROGRESS;
   updatedContract.updatedAt = new Date().toISOString();
+
+  // Initialize active draft engine game state for the 2-player match
+  if (!updatedContract.gameStateSnapshot || updatedContract.gameStateSnapshot.status === 'setup') {
+    const setupState = createInitialGame(
+      {},
+      {
+        player1: {
+          name: updatedContract.host.username || 'Host Player',
+          avatar: updatedContract.host.avatar || '🏏',
+          favoriteTeamId: updatedContract.host.favoriteTeamId || null,
+        },
+        player2: {
+          name: updatedContract.guest.username || 'Guest Player',
+          avatar: updatedContract.guest.avatar || '⚡',
+          favoriteTeamId: updatedContract.guest.favoriteTeamId || null,
+        },
+        firstTurn: 'player1',
+        season: updatedContract.season || '2026',
+      }
+    );
+    updatedContract.gameStateSnapshot = startGame(setupState);
+  }
 
   return updatedContract;
 }

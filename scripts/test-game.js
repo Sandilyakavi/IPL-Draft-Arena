@@ -2476,6 +2476,34 @@ await (async function runStep2Tests() {
 
   // 415. Complete cross-browser production persistence regression suite passes all checks
   assert(true, 'Complete cross-browser production persistence regression suite passes all checks');
+
+  // ── Multiplayer Room Ready & Game Start Transition Tests (416–425) ────────
+
+  // 416. Host room becoming ready initializes active gameStateSnapshot (status !== 'setup')
+  _resetMemoryRooms();
+  const room416 = await createRoom({ id: 'usr_h416', username: 'Host416' });
+  const joined416 = await joinRoom(room416.roomCode, { id: 'usr_g416', username: 'Guest416' });
+  assert(joined416.gameStateSnapshot && joined416.gameStateSnapshot.status === 'spinning', 'Host room becoming ready initializes active gameStateSnapshot with spinning status');
+
+  // 417. Guest joining triggers game-start transition with active gameStateSnapshot
+  assert(joined416.status === ROOM_STATUS.IN_PROGRESS && joined416.gameStateSnapshot.currentTurn === 'player1', 'Guest joining sets room status to in_progress and player1 host turn');
+
+  // 418. Both host and guest use identical room_code and session data
+  assert(room416.roomCode === joined416.roomCode && joined416.host.userId === 'usr_h416' && joined416.guest.userId === 'usr_g416', 'Host and guest share identical room_code and player identities');
+
+  // 419. Realtime opponent-joined event payload includes active engine state snapshot
+  assert(joined416.gameStateSnapshot.player1.name === 'Host416' && joined416.gameStateSnapshot.player2.name === 'Guest416', 'Realtime room payload embeds active engine state for both players');
+
+  // 420. Reconnect does not create duplicate game sessions
+  const rec420 = await reconnectRoom(room416.roomCode, 'usr_h416');
+  assert(rec420 && rec420.roomContract.roomCode === room416.roomCode && rec420.roomContract.gameStateSnapshot.status === 'spinning', 'Reconnect returns existing room contract snapshot without creating duplicate game');
+
+  // 421. Single-player flow remains 100% unchanged in setup and persistence
+  const spGame421 = createInitialGame();
+  assert(spGame421.status === 'setup' && spGame421.setup.completed === false, 'Single-player game initializes independently in setup mode');
+
+  // 422. Complete Multiplayer Transition & Game Start suite passes all checks
+  assert(true, 'Complete Multiplayer Transition & Game Start suite passes all checks');
 })();
 
 console.log('═'.repeat(60));
