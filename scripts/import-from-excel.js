@@ -88,8 +88,11 @@ const players = rawPlayers.map(row => {
   const currentTeam = String(row.team_id).trim().toLowerCase();
   const existing = existingPlayersMap.get(pId);
 
-  // Preserve historical seasonStatus map
+  // Parse seasonStatus map from Excel row (Excel is source of truth)
   const seasonStatus = { ...(existing?.seasonStatus || {}) };
+  if (row.status && String(row.status).trim() !== '') {
+    seasonStatus['2026'] = String(row.status).trim();
+  }
   Object.keys(row).forEach(key => {
     const match = key.match(/^season_(\d{4})_status$/);
     if (match && row[key] !== '' && row[key] !== null && row[key] !== undefined) {
@@ -105,9 +108,9 @@ const players = rawPlayers.map(row => {
     }
   }
 
-  // Preserve historical seasonTeams map (e.g. { "2026": "csk", "2027": "rcb" })
+  // Preserve historical seasonTeams map with Excel as source of truth for 2026
   const seasonTeams = { ...(existing?.seasonTeams || {}) };
-  seasonTeams['2026'] = existing?.seasonTeams?.['2026'] || currentTeam;
+  seasonTeams['2026'] = currentTeam;
   if (targetSeasonOpt) seasonTeams[targetSeasonOpt] = currentTeam;
 
   return {
