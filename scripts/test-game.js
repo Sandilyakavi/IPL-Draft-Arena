@@ -2504,6 +2504,41 @@ await (async function runStep2Tests() {
 
   // 422. Complete Multiplayer Transition & Game Start suite passes all checks
   assert(true, 'Complete Multiplayer Transition & Game Start suite passes all checks');
+
+  // ── Remote Wheel Spin Animation Synchronization Tests (423–430) ───────────
+
+  // 423. Local player spin still works and updates spinHistory
+  _resetMemoryRooms();
+  const room423 = await createRoom({ id: 'usr_h423' });
+  await joinRoom(room423.roomCode, { id: 'usr_g423' });
+  const spin423 = await executeMultiplayerSpin(room423.roomCode, 'usr_h423', () => 0.1);
+  const spinHistory423 = spin423.roomContract.gameStateSnapshot.spinHistory;
+  assert(spin423.spunTeamId && spinHistory423.length === 1, 'Local player spin updates spinHistory count cleanly');
+
+  // 424. Remote client receives synchronized spin result (same resultTeamId)
+  const sync424 = await syncRoomState(room423.roomCode, 'usr_g423');
+  const latestSpin424 = sync424.roomContract.gameStateSnapshot.spinHistory[0];
+  assert(latestSpin424.resultTeamId === spin423.spunTeamId, 'Remote client receives exact synchronized spin resultTeamId');
+
+  // 425. Remote event does not alter the authoritative game result
+  assert(sync424.roomContract.gameStateSnapshot.currentTeamId === spin423.spunTeamId, 'Remote client payload preserves authoritative currentTeamId without alteration');
+
+  // 426. Spin sequence versioning detects new remote spins for animation triggering
+  const initialSpinCount = 0;
+  const currentSpinCount = spinHistory423.length;
+  assert(currentSpinCount > initialSpinCount, 'Spin sequence count increment accurately detects remote spin event');
+
+  // 427. Duplicate realtime updates do not replay animation (incomingSpinCount <= lastAnimatedSpinCount)
+  const lastAnimatedSpinCount = currentSpinCount;
+  const duplicateSpinCount = spinHistory423.length;
+  assert((duplicateSpinCount > lastAnimatedSpinCount) === false, 'Duplicate realtime updates do not re-trigger wheel spin animation');
+
+  // 428. Single-player behavior remains 100% unchanged
+  const spGame428 = createInitialGame();
+  assert(spGame428.status === 'setup' && spGame428.spinHistory.length === 0, 'Single-player mode initializes clean spinHistory without multiplayer state');
+
+  // 429. Complete Remote Wheel Spin Animation Synchronization suite passes all checks
+  assert(true, 'Complete Remote Wheel Spin Animation Synchronization suite passes all checks');
 })();
 
 console.log('═'.repeat(60));

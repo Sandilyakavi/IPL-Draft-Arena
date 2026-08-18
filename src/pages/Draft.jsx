@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   createInitialGame,
   startGame,
@@ -36,6 +36,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   const [isMultiplayerMode, setIsMultiplayerMode] = useState(false);
   const [multiplayerRoom, setMultiplayerRoom] = useState(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const lastAnimatedSpinCount = useRef(0);
 
   // Initialize game state from local persistence if available, else default setup state
   const [gameState, setGameState] = useState(() => {
@@ -79,17 +80,39 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
     const unsub = subscribeToRoom(
       multiplayerRoom.roomCode,
       (updatedRoomContract) => {
-        if (updatedRoomContract) {
-          setMultiplayerRoom(updatedRoomContract);
-          if (updatedRoomContract.gameStateSnapshot) {
-            setGameState(updatedRoomContract.gameStateSnapshot);
+        if (!updatedRoomContract || !updatedRoomContract.gameStateSnapshot) return;
+
+        const incomingSnapshot = updatedRoomContract.gameStateSnapshot;
+        const incomingSpinHistory = incomingSnapshot.spinHistory || [];
+        const incomingSpinCount = incomingSpinHistory.length;
+
+        // Trigger visual wheel animation on remote client when new spin detected
+        if (incomingSpinCount > lastAnimatedSpinCount.current && !isSpinning) {
+          lastAnimatedSpinCount.current = incomingSpinCount;
+          const latestSpin = incomingSpinHistory[incomingSpinCount - 1];
+          const selectedTeamId = latestSpin?.resultTeamId || incomingSnapshot.currentTeamId;
+
+          if (selectedTeamId) {
+            setIsSpinning(true);
+            setTargetTeamId(selectedTeamId);
+            setRotationDegrees(prev => getTargetRotation(selectedTeamId, prev, 5));
+
+            setTimeout(() => {
+              setMultiplayerRoom(updatedRoomContract);
+              setGameState(incomingSnapshot);
+              setIsSpinning(false);
+            }, 2500);
+            return;
           }
         }
+
+        setMultiplayerRoom(updatedRoomContract);
+        setGameState(incomingSnapshot);
       }
     );
 
     return () => unsub();
-  }, [isMultiplayerMode, multiplayerRoom?.roomCode]);
+  }, [isMultiplayerMode, multiplayerRoom?.roomCode, isSpinning]);
 
   const activeUser = getCurrentPlayer(gameState);
   const progress = getDraftProgress(gameState);
@@ -154,6 +177,10 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
         const res = await executeMultiplayerSpin(multiplayerRoom.roomCode, currentUserId);
         const updatedState = res.roomContract.gameStateSnapshot;
         const selectedTeamId = res.spunTeamId;
+        const newSpinCount = (updatedState.spinHistory || []).length;
+        if (newSpinCount > 0) {
+          lastAnimatedSpinCount.current = newSpinCount;
+        }
         setTargetTeamId(selectedTeamId);
         setRotationDegrees(prev => getTargetRotation(selectedTeamId, prev, 5));
 
