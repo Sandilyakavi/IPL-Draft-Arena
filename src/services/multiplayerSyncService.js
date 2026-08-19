@@ -20,7 +20,7 @@ import {
   resolveUserRole,
 } from '../multiplayer/multiplayerArchitecture.js';
 import { fetchRoomByCode, _setMemoryRoom } from './multiplayerRoomService.js';
-import { startGame, spinTeam, confirmPick, createInitialGame } from '../game/draftEngine.js';
+import { startGame, spinTeam, confirmPick, createInitialGame, updateSquadOrder } from '../game/draftEngine.js';
 import { validatePick } from '../game/ruleEngine.js';
 
 /**
@@ -188,5 +188,64 @@ export async function syncRoomState(roomCode, userId) {
     currentTurnRole: currentEngineTurn,
     isMyTurn,
     gameState: roomContract.gameStateSnapshot,
+  };
+}
+
+/**
+ * Updates squad presentation order in multiplayer game state snapshot.
+ * Authoritative: updates room contract, version, memory store and Supabase.
+ */
+export async function executeMultiplayerUpdateSquadOrder(roomCode, userId, playerKey, newSquadOrder) {
+  if (!roomCode || !userId || !playerKey || !newSquadOrder) {
+    throw new Error('Room code, user ID, player key, and new squad order are required');
+  }
+
+  const roomContract = await fetchRoomByCode(roomCode);
+  if (!roomContract) {
+    throw new Error(`Multiplayer room "${roomCode}" not found`);
+  }
+
+  const userRole = resolveUserRole(roomContract, userId);
+  if (!userRole) {
+    throw new Error('Unauthorized: User is not a participant in this room');
+  }
+
+  // Ensure game engine state exists
+  const gameState = roomContract.gameStateSnapshot;
+  if (!gameState) {
+    throw new Error('No game state snapshot found in room contract');
+  }
+
+  const updatedGameState = updateSquadOrder(gameState, playerKey, newSquadOrder);
+  const currentVersion = (roomContract.version || 1) + 1;
+
+  const updatedContract = JSON.parse(JSON.stringify(roomContract));
+  updatedContract.gameStateSnapshot = updatedGameState;
+  updatedContract.version = currentVersion;
+  updatedContract.updatedAt = new Date().toISOString();
+
+  // Persist to memory store
+  _setMemoryRoom(roomCode, updatedContract);
+
+  // Persist to Supabase if configured
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase
+        .from('draft_rooms')
+        .update({
+          game_state: updatedContract,
+          updated_at: updatedContract.updatedAt,
+        })
+        .eq('room_code', roomCode.toUpperCase());
+    } catch (err) {
+      console.warn('Supabase squad order sync warning:', err.message);
+    }
+  }
+
+  return {
+    roomContract: updatedContract,
+    event: MULTIPLAYER_EVENTS.SQUAD_ORDER_UPDATED || 'SQUAD_ORDER_UPDATED',
+    playerKey,
+    squadOrder: newSquadOrder,
   };
 }

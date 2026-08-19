@@ -27,9 +27,12 @@ import DraftHistory from '../components/history/DraftHistory';
 import DraftComplete from '../components/game/DraftComplete';
 
 import { CheckCircle2, Globe, Users, Copy, Check } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { executeMultiplayerSpin, executeMultiplayerPick, syncRoomState } from '../services/multiplayerSyncService';
-import { subscribeToRoom } from '../services/multiplayerRoomService';
+import {
+  executeMultiplayerSpin,
+  executeMultiplayerPick,
+  syncRoomState,
+  executeMultiplayerUpdateSquadOrder,
+} from '../services/multiplayerSyncService';
 import { isUserTurn, resolveUserRole, ROOM_STATUS } from '../multiplayer/multiplayerArchitecture';
 
 export default function DraftPage({ onToggleDashboard, showDebug = false }) {
@@ -221,7 +224,24 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
 
     // 3. Update game state ONLY AFTER 2500ms CSS animation finishes
     setTimeout(() => {
-      setGameState(res.updatedGameState);
+      setGameState(prev => {
+        if (!prev) return res.updatedGameState;
+        return {
+          ...res.updatedGameState,
+          player1: {
+            ...res.updatedGameState.player1,
+            squadOrder: (prev.player1?.squadOrder && prev.player1.squadOrder.length > 0)
+              ? prev.player1.squadOrder
+              : res.updatedGameState.player1?.squadOrder,
+          },
+          player2: {
+            ...res.updatedGameState.player2,
+            squadOrder: (prev.player2?.squadOrder && prev.player2.squadOrder.length > 0)
+              ? prev.player2.squadOrder
+              : res.updatedGameState.player2?.squadOrder,
+          },
+        };
+      });
       setIsSpinning(false);
     }, 2500);
   }, [gameState, isSpinning, draftFinished, isMultiplayerMode, isMyTurn, multiplayerRoom, currentUserId]);
@@ -296,9 +316,25 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   }, []);
 
   // ── Handle Squad Order Rearranging ─────────────────────────────
-  const handleUpdateSquadOrder = useCallback((playerKey, newOrder) => {
+  const handleUpdateSquadOrder = useCallback(async (playerKey, newOrder) => {
     setGameState(prev => updateSquadOrder(prev, playerKey, newOrder));
-  }, []);
+
+    if (isMultiplayerMode && multiplayerRoom?.roomCode) {
+      try {
+        const res = await executeMultiplayerUpdateSquadOrder(
+          multiplayerRoom.roomCode,
+          currentUserId,
+          playerKey,
+          newOrder
+        );
+        if (res?.roomContract) {
+          setMultiplayerRoom(res.roomContract);
+        }
+      } catch (err) {
+        console.warn('Multiplayer squad order sync warning:', err.message);
+      }
+    }
+  }, [isMultiplayerMode, multiplayerRoom?.roomCode, currentUserId]);
 
   // If in setup status, render pre-game setup flow
   if (!gameState || gameState.status === 'setup') {

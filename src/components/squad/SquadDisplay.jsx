@@ -49,9 +49,15 @@ function SquadCard({ user, isCurrentTurn, userKey, onUpdateSquadOrder }) {
   const playerMap = new Map(squad.map(p => [p.id, p]));
 
   // Active presentation order
-  const activeOrder = user?.squadOrder && user.squadOrder.length === squad.length
-    ? user.squadOrder
-    : squad.map(p => p.id);
+  const squadIds = squad.map(p => p.id);
+  const squadIdSet = new Set(squadIds);
+  let activeOrder = squadIds;
+  if (Array.isArray(user?.squadOrder) && user.squadOrder.length > 0) {
+    const validSavedIds = user.squadOrder.filter(id => squadIdSet.has(id));
+    const savedIdSet = new Set(validSavedIds);
+    const missingIds = squadIds.filter(id => !savedIdSet.has(id));
+    activeOrder = [...validSavedIds, ...missingIds];
+  }
 
   // Sync draftOrder when entering rearrange mode or when squad updates while rearranging
   useEffect(() => {

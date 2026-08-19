@@ -25,7 +25,7 @@ export function loadGameSession() {
       if (raw) {
         const parsed = JSON.parse(raw);
         // Basic shape validation to protect against corrupted or legacy localStorage data
-        if (parsed && typeof parsed === 'object' && parsed.status && parsed.squads) {
+        if (parsed && typeof parsed === 'object' && parsed.status && (parsed.player1 || parsed.squads)) {
           return parsed;
         }
       }

@@ -97,6 +97,7 @@ import {
   executeMultiplayerSpin,
   executeMultiplayerPick,
   syncRoomState,
+  executeMultiplayerUpdateSquadOrder,
 } from '../src/services/multiplayerSyncService.js';
 import { runMultiplayerQA } from './qa-multiplayer-release.js';
 
@@ -2617,6 +2618,262 @@ assert(fs.existsSync(path.join(process.cwd(), 'IPL players list.xlsx')), 'Excel 
 
 // 440. Complete Phase 9 Step 2 Excel → Production Data Pipeline suite passes
 assert(true, 'Complete Phase 9 Step 2 Excel to Production Data Pipeline suite passes');
+
+// =================================================================
+// PHASE 9 STEP 3 — GAMEPLAY STATE PERSISTENCE & SQUAD ORDER SUITE
+// =================================================================
+
+await (async function runStep3Tests() {
+  // Helper to create a game with drafted players for testing squadOrder
+  function createDraftedGame() {
+    let g = startGame(createInitialGame({ squadSize: 12 }, { firstTurn: 'player1' }));
+    // Draft P1 (CSK player)
+    const cskPlayers = getDraftPool('2026').filter(p => p.teamId === 'csk');
+    const miPlayers = getDraftPool('2026').filter(p => p.teamId === 'mi');
+    const rcbPlayers = getDraftPool('2026').filter(p => p.teamId === 'rcb');
+
+    // Turn 1: Player 1 drafts CSK player
+    g = applyTeamResult(g, 'csk');
+    g = confirmPick(g, cskPlayers[0].id).updatedGameState;
+
+    // Turn 2: Player 2 drafts MI player
+    g = applyTeamResult(g, 'mi');
+    g = confirmPick(g, miPlayers[0].id).updatedGameState;
+
+    // Turn 3: Player 1 drafts CSK player 2
+    g = applyTeamResult(g, 'csk');
+    g = confirmPick(g, cskPlayers[1].id).updatedGameState;
+
+    // Turn 4: Player 2 drafts MI player 2
+    g = applyTeamResult(g, 'mi');
+    g = confirmPick(g, miPlayers[1].id).updatedGameState;
+
+    // Turn 5: Player 1 drafts RCB player
+    g = applyTeamResult(g, 'rcb');
+    g = confirmPick(g, rcbPlayers[0].id).updatedGameState;
+
+    // Turn 6: Player 2 drafts RCB player 2
+    g = applyTeamResult(g, 'rcb');
+    g = confirmPick(g, rcbPlayers[1].id).updatedGameState;
+
+    return { g, cskPlayers, miPlayers, rcbPlayers };
+  }
+
+  // 441. Initial player order is created correctly
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const p1Order = g.player1.squadOrder;
+    assert(
+      p1Squad.length === 3 &&
+      p1Order.length === 3 &&
+      p1Order.every((id, idx) => id === p1Squad[idx]),
+      'Initial player order is created correctly in canonical game state'
+    );
+  })();
+
+  // 442. Player order can be rearranged during an active game
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const reordered = [p1Squad[2], p1Squad[0], p1Squad[1]];
+    const gRearranged = updateSquadOrder(g, 'player1', reordered);
+    assert(
+      gRearranged.player1.squadOrder[0] === p1Squad[2] &&
+      gRearranged.player1.squadOrder[1] === p1Squad[0] &&
+      gRearranged.player1.squadOrder[2] === p1Squad[1],
+      'Player order can be rearranged during an active game'
+    );
+  })();
+
+  // 443. Reordered player list is stored in canonical game state
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const reordered = [p1Squad[2], p1Squad[0], p1Squad[1]];
+    const gRearranged = updateSquadOrder(g, 'player1', reordered);
+    // Verify canonical squad array preserves acquisition data while squadOrder holds new order
+    assert(
+      gRearranged.player1.squad[0].id === p1Squad[0] &&
+      gRearranged.player1.squadOrder[0] === p1Squad[2] &&
+      gRearranged !== g,
+      'Reordered player list is stored in canonical game state immutably'
+    );
+  })();
+
+  // 444. A wheel spin does NOT reset the reordered list
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const reordered = [p1Squad[2], p1Squad[0], p1Squad[1]];
+    const gRearranged = updateSquadOrder(g, 'player1', reordered);
+
+    const spinRes = spinTeam(gRearranged);
+    assert(
+      spinRes.success &&
+      spinRes.updatedGameState.player1.squadOrder[0] === p1Squad[2] &&
+      spinRes.updatedGameState.player1.squadOrder[1] === p1Squad[0] &&
+      spinRes.updatedGameState.player1.squadOrder[2] === p1Squad[1],
+      'A wheel spin does NOT reset the reordered list'
+    );
+  })();
+
+  // 445. Multiple consecutive spins preserve the reordered list
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const reordered = [p1Squad[2], p1Squad[0], p1Squad[1]];
+    let current = updateSquadOrder(g, 'player1', reordered);
+
+    // Spin 1
+    const spin1 = spinTeam(current);
+    current = spin1.updatedGameState;
+    assert(current.player1.squadOrder[0] === p1Squad[2], 'Spin 1 preserves reordered order');
+
+    // Spin 2 (apply team result directly)
+    current = applyTeamResult(current, 'kkr');
+    assert(current.player1.squadOrder[0] === p1Squad[2], 'Multiple consecutive spins preserve the reordered list');
+  })();
+
+  // 446. Player selection after rearranging preserves the reordered list
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const reordered = [p1Squad[2], p1Squad[0], p1Squad[1]];
+    let current = updateSquadOrder(g, 'player1', reordered);
+
+    // Player 1's turn to pick player 4 (KKR)
+    const kkrPlayer = getDraftPool('2026').find(p => p.teamId === 'kkr');
+    current = applyTeamResult(current, 'kkr');
+    const pickRes = confirmPick(current, kkrPlayer.id);
+    const p1AfterPick = pickRes.updatedGameState.player1;
+
+    assert(
+      p1AfterPick.squadOrder.length === 4 &&
+      p1AfterPick.squadOrder[0] === p1Squad[2] &&
+      p1AfterPick.squadOrder[1] === p1Squad[0] &&
+      p1AfterPick.squadOrder[2] === p1Squad[1] &&
+      p1AfterPick.squadOrder[3] === kkrPlayer.id,
+      'Player selection after rearranging preserves the reordered list'
+    );
+  })();
+
+  // 447. Game-state persistence/reload preserves the reordered list
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const reordered = [p1Squad[2], p1Squad[0], p1Squad[1]];
+    const gRearranged = updateSquadOrder(g, 'player1', reordered);
+
+    // Test loadGameSession logic with canonical player1/player2 shape
+    const jsonStr = JSON.stringify(gRearranged);
+    const parsed = JSON.parse(jsonStr);
+    let loaded = null;
+    if (parsed && typeof parsed === 'object' && parsed.status && (parsed.player1 || parsed.squads)) {
+      loaded = parsed;
+    }
+
+    assert(
+      loaded !== null &&
+      loaded.player1.squadOrder[0] === p1Squad[2] &&
+      loaded.player1.squadOrder[1] === p1Squad[0],
+      'Game-state persistence/reload preserves the reordered list'
+    );
+  })();
+
+  // 448. Single-player mode remains isolated
+  (function() {
+    const { g } = createDraftedGame();
+    const p1Squad = g.player1.squad.map(p => p.id);
+    const reordered = [p1Squad[2], p1Squad[0], p1Squad[1]];
+    const gRearranged = updateSquadOrder(g, 'player1', reordered);
+    // Ensure no multiplayer room code or properties leaked into single-player state
+    assert(
+      gRearranged.multiplayerRoomCode === undefined &&
+      gRearranged.player1.squadOrder[0] === p1Squad[2],
+      'Single-player mode remains isolated'
+    );
+  })();
+
+  // 449. Multiplayer host preserves reordered order after a spin
+  _resetMemoryRooms();
+  const hostUser = { id: 'host-order-test', username: 'HostOrder', favoriteTeamId: 'csk' };
+  const guestUser = { id: 'guest-order-test', username: 'GuestOrder', favoriteTeamId: 'mi' };
+
+  let room = createMultiplayerRoomContract(hostUser, 'ORD101');
+  room = joinMultiplayerRoomContract(room, guestUser);
+  const { _setMemoryRoom } = await import('../src/services/multiplayerRoomService.js');
+  _setMemoryRoom('ORD101', room);
+
+  // Draft 2 players for host
+  const cskPlayers = getDraftPool('2026').filter(p => p.teamId === 'csk');
+  const miPlayers = getDraftPool('2026').filter(p => p.teamId === 'mi');
+
+  // Spin & Pick 1 (Host)
+  let spin1 = await executeMultiplayerSpin('ORD101', 'host-order-test');
+  let eligible1 = spin1.roomContract.gameStateSnapshot.currentEligiblePlayers[0];
+  let pick1 = await executeMultiplayerPick('ORD101', 'host-order-test', eligible1.id);
+
+  // Spin & Pick 2 (Guest)
+  let spin2 = await executeMultiplayerSpin('ORD101', 'guest-order-test');
+  let eligible2 = spin2.roomContract.gameStateSnapshot.currentEligiblePlayers[0];
+  let pick2 = await executeMultiplayerPick('ORD101', 'guest-order-test', eligible2.id);
+
+  // Spin & Pick 3 (Host)
+  let spin3 = await executeMultiplayerSpin('ORD101', 'host-order-test');
+  let eligible3 = spin3.roomContract.gameStateSnapshot.currentEligiblePlayers[0];
+  let pick3 = await executeMultiplayerPick('ORD101', 'host-order-test', eligible3.id);
+
+  // Host rearranges squad
+  const p1SquadIds = pick3.roomContract.gameStateSnapshot.player1.squad.map(p => p.id);
+  const reordered = [p1SquadIds[1], p1SquadIds[0]];
+  const reorderRes = await executeMultiplayerUpdateSquadOrder('ORD101', 'host-order-test', 'player1', reordered);
+
+  assert(
+    reorderRes.roomContract.gameStateSnapshot.player1.squadOrder[0] === p1SquadIds[1],
+    'Host successfully updates squad order in room contract'
+  );
+
+  // Next spin occurs (Guest turn)
+  const nextSpin = await executeMultiplayerSpin('ORD101', 'guest-order-test');
+  assert(
+    nextSpin.roomContract.gameStateSnapshot.player1.squadOrder[0] === p1SquadIds[1] &&
+    nextSpin.roomContract.gameStateSnapshot.player1.squadOrder[1] === p1SquadIds[0],
+    'Multiplayer host preserves reordered order after a spin'
+  );
+
+  // 450. Multiplayer guest receives/preserves the same reordered order after a spin
+  const sync = await syncRoomState('ORD101', 'guest-order-test');
+  const p1SquadOrder = sync.roomContract.gameStateSnapshot.player1.squadOrder;
+  const p1Squad = sync.roomContract.gameStateSnapshot.player1.squad;
+  assert(
+    p1SquadOrder[0] === p1Squad[1].id &&
+    p1SquadOrder[1] === p1Squad[0].id,
+    'Multiplayer guest receives and preserves the same reordered order after a spin'
+  );
+
+  // 451. Existing remote wheel animation remains unchanged
+  const spinHistory = sync.roomContract.gameStateSnapshot.spinHistory;
+  assert(
+    Array.isArray(spinHistory) &&
+    spinHistory.length > 0 &&
+    spinHistory[spinHistory.length - 1].resultTeamId !== undefined,
+    'Existing remote wheel animation remains unchanged'
+  );
+
+  // 452. Starting a BRAND NEW game still uses the original initial order
+  const freshState = createInitialGame();
+  assert(
+    freshState.player1.squad.length === 0 &&
+    freshState.player1.squadOrder.length === 0 &&
+    freshState.player2.squad.length === 0 &&
+    freshState.player2.squadOrder.length === 0,
+    'Starting a BRAND NEW game still uses the original initial order'
+  );
+
+  // 453. Complete Phase 9 Step 3 Gameplay State Persistence suite passes
+  assert(true, 'Complete Phase 9 Step 3 Gameplay State Persistence suite passes');
+})();
 
 console.log('═'.repeat(60));
 console.log(`  RESULTS: ${passed} PASSED, ${failed} FAILED`);

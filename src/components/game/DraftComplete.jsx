@@ -20,6 +20,15 @@ function SquadSummaryCard({ user, title, userKey, evaluation }) {
     if (franchiseMap[p.teamId] !== undefined) franchiseMap[p.teamId]++;
   });
 
+  // Roster display order respecting custom squadOrder
+  const playerMap = new Map(squad.map(p => [p.id, p]));
+  const squadIds = squad.map(p => p.id);
+  const squadIdSet = new Set(squadIds);
+  const orderedIds = (Array.isArray(user?.squadOrder) && user.squadOrder.length > 0)
+    ? [...user.squadOrder.filter(id => squadIdSet.has(id)), ...squadIds.filter(id => !new Set(user.squadOrder).has(id))]
+    : squadIds;
+  const displayedSquad = orderedIds.map(id => playerMap.get(id)).filter(Boolean);
+
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4">
       <div className="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -37,7 +46,7 @@ function SquadSummaryCard({ user, title, userKey, evaluation }) {
 
       {/* Roster List */}
       <div className="space-y-1.5 max-h-[260px] overflow-y-auto pr-1">
-        {squad.map((p, idx) => (
+        {displayedSquad.map((p, idx) => (
           <div
             key={p.id}
             className="p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl flex items-center justify-between text-xs"
