@@ -13,7 +13,8 @@ import {
 
 import { getEligibleTeams } from '../game/wheelEngine.js';
 import { getTargetRotation } from '../utils/wheelGeometry.js';
-import { saveGameSession, loadGameSession } from '../utils/persistence.js';
+import { saveGameSession, loadGameSession, clearGameSession } from '../utils/persistence.js';
+import { useAuth } from '../context/AuthContext';
 
 import GameSetup from '../components/setup/GameSetup';
 import Header from '../components/common/Header';
@@ -32,7 +33,9 @@ import {
   executeMultiplayerPick,
   syncRoomState,
   executeMultiplayerUpdateSquadOrder,
+  executeMultiplayerEndDraft,
 } from '../services/multiplayerSyncService';
+import { subscribeToRoom } from '../services/multiplayerRoomService';
 import { isUserTurn, resolveUserRole, ROOM_STATUS } from '../multiplayer/multiplayerArchitecture';
 
 export default function DraftPage({ onToggleDashboard, showDebug = false }) {
@@ -52,6 +55,8 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   const [rotationDegrees, setRotationDegrees] = useState(0);
   const [targetTeamId, setTargetTeamId] = useState(null);
   const [showRestartModal, setShowRestartModal] = useState(false);
+  const [showEndDraftModal, setShowEndDraftModal] = useState(false);
+  const [showOpponentEndedModal, setShowOpponentEndedModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [lastPickBanner, setLastPickBanner] = useState(null);
 
@@ -83,7 +88,18 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
     const unsub = subscribeToRoom(
       multiplayerRoom.roomCode,
       (updatedRoomContract) => {
-        if (!updatedRoomContract || !updatedRoomContract.gameStateSnapshot) return;
+        if (!updatedRoomContract) return;
+
+        // Check if room was abandoned / ended by remote opponent
+        if (updatedRoomContract.status === ROOM_STATUS.ABANDONED) {
+          setMultiplayerRoom(updatedRoomContract);
+          if (updatedRoomContract.abandonedBy && updatedRoomContract.abandonedBy !== currentUserId) {
+            setShowOpponentEndedModal(true);
+          }
+          return;
+        }
+
+        if (!updatedRoomContract.gameStateSnapshot) return;
 
         const incomingSnapshot = updatedRoomContract.gameStateSnapshot;
         const incomingSpinHistory = incomingSnapshot.spinHistory || [];
@@ -115,7 +131,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
     );
 
     return () => unsub();
-  }, [isMultiplayerMode, multiplayerRoom?.roomCode, isSpinning]);
+  }, [isMultiplayerMode, multiplayerRoom?.roomCode, isSpinning, currentUserId]);
 
   const activeUser = getCurrentPlayer(gameState);
   const progress = getDraftProgress(gameState);
@@ -315,6 +331,44 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
     setLastPickBanner(null);
   }, []);
 
+  // ── End Draft Action ───────────────────────────────────────────
+  const handleConfirmEndDraft = useCallback(async () => {
+    if (isMultiplayerMode && multiplayerRoom?.roomCode) {
+      try {
+        await executeMultiplayerEndDraft(multiplayerRoom.roomCode, currentUserId);
+      } catch (err) {
+        console.warn('Multiplayer end draft sync warning:', err.message);
+      }
+      setIsMultiplayerMode(false);
+      setMultiplayerRoom(null);
+    } else {
+      // Clear local single-player session from storage
+      clearGameSession();
+    }
+
+    const freshState = createInitialGame();
+    setGameState(freshState);
+    setIsSpinning(false);
+    setSpinError(null);
+    setRotationDegrees(0);
+    setTargetTeamId(null);
+    setShowEndDraftModal(false);
+    setLastPickBanner(null);
+  }, [isMultiplayerMode, multiplayerRoom?.roomCode, currentUserId]);
+
+  const handleAcknowledgeOpponentEnded = useCallback(() => {
+    setIsMultiplayerMode(false);
+    setMultiplayerRoom(null);
+    const freshState = createInitialGame();
+    setGameState(freshState);
+    setIsSpinning(false);
+    setSpinError(null);
+    setRotationDegrees(0);
+    setTargetTeamId(null);
+    setShowOpponentEndedModal(false);
+    setLastPickBanner(null);
+  }, []);
+
   // ── Handle Squad Order Rearranging ─────────────────────────────
   const handleUpdateSquadOrder = useCallback(async (playerKey, newOrder) => {
     setGameState(prev => updateSquadOrder(prev, playerKey, newOrder));
@@ -355,6 +409,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
         currentTurnUser={activeUser}
         player1Name={gameState.player1?.name || 'Player 1'}
         player2Name={gameState.player2?.name || 'Player 2'}
+        onOpenEndDraftModal={() => setShowEndDraftModal(true)}
         onOpenRestartModal={() => setShowRestartModal(true)}
         onOpenProfileModal={() => setShowProfileModal(true)}
         onToggleDebug={onToggleDashboard}
@@ -380,6 +435,34 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
         cancelLabel="CANCEL"
         onConfirm={handleConfirmReset}
         onCancel={() => setShowRestartModal(false)}
+      />
+
+      {/* CONFIRMATION END DRAFT MODAL */}
+      <Modal
+        isOpen={showEndDraftModal}
+        title="END DRAFT ARENA?"
+        message={
+          isMultiplayerMode
+            ? "Are you sure you want to end this match? This will abandon the multiplayer draft room and return you to Game Setup."
+            : "Are you sure you want to end the current draft? Your active session progress will be cleared and you will return to Game Setup."
+        }
+        confirmLabel="END DRAFT"
+        cancelLabel="CANCEL"
+        variant="danger"
+        onConfirm={handleConfirmEndDraft}
+        onCancel={() => setShowEndDraftModal(false)}
+      />
+
+      {/* OPPONENT ENDED DRAFT NOTIFICATION MODAL */}
+      <Modal
+        isOpen={showOpponentEndedModal}
+        title="DRAFT ENDED BY OPPONENT"
+        message="Your opponent has ended the draft match. The room has been closed."
+        confirmLabel="RETURN HOME"
+        cancelLabel="CLOSE"
+        variant="warning"
+        onConfirm={handleAcknowledgeOpponentEnded}
+        onCancel={handleAcknowledgeOpponentEnded}
       />
 
       {/* MAIN CONTAINER */}

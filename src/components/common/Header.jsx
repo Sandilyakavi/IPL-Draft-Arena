@@ -1,6 +1,6 @@
 import React from 'react';
 import ProgressBar from './ProgressBar';
-import { RotateCcw, Bug, Trophy, LogOut } from 'lucide-react';
+import { RotateCcw, Bug, Trophy, LogOut, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 /**
@@ -11,6 +11,7 @@ export default function Header({
   currentTurnUser = null,
   player1Name = 'Player 1',
   player2Name = 'Player 2',
+  onOpenEndDraftModal,
   onOpenRestartModal,
   onOpenProfileModal,
   onToggleDebug,
@@ -86,6 +87,21 @@ export default function Header({
             >
               <span className="text-sm">{userProfile?.avatar || '🏏'}</span>
               <span className="hidden md:inline font-mono">@{userProfile?.username || 'profile'}</span>
+            </button>
+          )}
+
+          {/* End Draft Button */}
+          {onOpenEndDraftModal && (
+            <button
+              onClick={onOpenEndDraftModal}
+              id="end-draft-button"
+              data-testid="end-draft-button"
+              className="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-xl text-xs font-extrabold transition-all border border-rose-500/30 flex items-center gap-1.5 active:scale-95 shadow-sm"
+              title="End Draft and Return to Game Setup"
+              aria-label="End Draft"
+            >
+              <XCircle className="w-3.5 h-3.5 text-rose-400" />
+              <span>End Draft</span>
             </button>
           )}
 

@@ -18,6 +18,7 @@ import {
   MULTIPLAYER_EVENTS,
   isUserTurn,
   resolveUserRole,
+  validateStateTransition,
 } from '../multiplayer/multiplayerArchitecture.js';
 import { fetchRoomByCode, _setMemoryRoom } from './multiplayerRoomService.js';
 import { startGame, spinTeam, confirmPick, createInitialGame, updateSquadOrder } from '../game/draftEngine.js';
@@ -249,3 +250,66 @@ export async function executeMultiplayerUpdateSquadOrder(roomCode, userId, playe
     squadOrder: newSquadOrder,
   };
 }
+
+/**
+ * Authoritatively ends/abandons a multiplayer draft match.
+ * Validates participant authorization, updates room status to ABANDONED,
+ * synchronizes state via memory store and Supabase database.
+ */
+export async function executeMultiplayerEndDraft(roomCode, userId, reason = 'Draft ended by player') {
+  if (!roomCode || !userId) {
+    throw new Error('Room code and user ID are required to end draft');
+  }
+
+  const roomContract = await fetchRoomByCode(roomCode);
+  if (!roomContract) {
+    throw new Error(`Multiplayer room "${roomCode}" not found`);
+  }
+
+  const userRole = resolveUserRole(roomContract, userId);
+  if (!userRole) {
+    throw new Error('Unauthorized: Only room participants can end the draft');
+  }
+
+  if (!validateStateTransition(roomContract.status, ROOM_STATUS.ABANDONED)) {
+    throw new Error(`Cannot end draft: Room status is already ${roomContract.status}`);
+  }
+
+  const currentVersion = (roomContract.version || 1) + 1;
+  const updatedContract = JSON.parse(JSON.stringify(roomContract));
+  updatedContract.status = ROOM_STATUS.ABANDONED;
+  updatedContract.abandonedBy = userId;
+  updatedContract.abandonedByRole = userRole;
+  updatedContract.abandonReason = reason;
+  if (updatedContract.gameStateSnapshot) {
+    updatedContract.gameStateSnapshot.status = 'abandoned';
+  }
+  updatedContract.version = currentVersion;
+  updatedContract.updatedAt = new Date().toISOString();
+
+  // Persist to memory store
+  _setMemoryRoom(roomCode, updatedContract);
+
+  // Persist to Supabase if configured
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase
+        .from('draft_rooms')
+        .update({
+          status: ROOM_STATUS.ABANDONED,
+          game_state: updatedContract,
+          updated_at: updatedContract.updatedAt,
+        })
+        .eq('room_code', roomCode.toUpperCase());
+    } catch (err) {
+      console.warn('Supabase end draft sync warning:', err.message);
+    }
+  }
+
+  return {
+    roomContract: updatedContract,
+    event: MULTIPLAYER_EVENTS.MATCH_ABANDONED,
+    endedBy: userId,
+  };
+}
+
