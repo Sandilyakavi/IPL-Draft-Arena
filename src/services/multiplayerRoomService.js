@@ -198,8 +198,8 @@ export async function joinRoom(roomCode, guestUser) {
     const { error } = await supabase
       .from('draft_rooms')
       .update({
-        guest_id: guestUser.id,
-        status: ROOM_STATUS.IN_PROGRESS,
+        guest_id: updatedContract.guest?.userId || guestUser.id,
+        status: updatedContract.status,
         game_state: updatedContract,
         updated_at: new Date().toISOString(),
       })

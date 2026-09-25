@@ -111,7 +111,7 @@ export default function GameSetup({ onStartDraft, initialConfig = null }) {
                 BUILD YOUR ULTIMATE SQUAD
               </h1>
               <p className="text-sm sm:text-base text-slate-400 font-medium max-w-xl mx-auto">
-                Turn-based local 2-player arena draft. Spin the franchise wheel, draft stars, and construct the winning Playing XI.
+                Draft stars from 10 IPL franchises. Play locally (2 players) or go online (2–4 players) in a realtime multiplayer arena draft.
               </p>
             </div>
 
@@ -156,10 +156,13 @@ export default function GameSetup({ onStartDraft, initialConfig = null }) {
               <button
                 type="button"
                 onClick={() => setIsMultiplayerModalOpen(true)}
-                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-base rounded-2xl transition-all shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-base rounded-2xl transition-all shadow-xl shadow-amber-500/25 flex flex-col items-center justify-center gap-0.5 active:scale-95 cursor-pointer"
               >
-                <Globe className="w-5 h-5" />
-                <span>ONLINE 2-PLAYER</span>
+                <span className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  ONLINE DRAFT ARENA
+                </span>
+                <span className="text-[10px] font-bold opacity-70 tracking-wider">2–4 PLAYERS • REALTIME</span>
               </button>
             </div>
           </div>
