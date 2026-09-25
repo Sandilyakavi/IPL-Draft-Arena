@@ -88,18 +88,21 @@ CREATE INDEX IF NOT EXISTS idx_room_participants_user ON public.room_participant
 -- ─────────────────────────────────────────────────────────────────────
 -- STEP 4: RLS on room_participants
 -- ─────────────────────────────────────────────────────────────────────
+-- STEP 4: RLS on room_participants
+-- ─────────────────────────────────────────────────────────────────────
 -- SECURITY REASONING:
 --   SELECT:
---     (a) user_id = auth.uid() — always see your own row, no recursion
---     (b) room is host_id = auth.uid() OR status = waiting — lobby visible
---         via a draft_rooms join (NOT a room_participants self-query).
+--     (a) user_id = auth.uid() — always see your own row, no joins
+--     (b) room is host-owned, waiting (lobby), or caller is in participants JSONB.
+--         This joins draft_rooms, which is completely ACYCLIC because
+--         draft_rooms RLS does NOT query room_participants.
 --
 --   INSERT/UPDATE/DELETE: join_room() SECURITY DEFINER handles inserts.
 --   Direct INSERT still requires uid = user_id (belt+suspenders).
 
 ALTER TABLE public.room_participants ENABLE ROW LEVEL SECURITY;
 
--- SELECT: NO recursive self-query — resolves via draft_rooms join only
+-- SELECT: ACYCLIC — queries draft_rooms, but draft_rooms never queries room_participants
 DROP POLICY IF EXISTS "Participants can view room members" ON public.room_participants;
 DROP POLICY IF EXISTS "Participants can view their room members" ON public.room_participants;
 CREATE POLICY "Participants can view room members" ON public.room_participants
@@ -111,7 +114,19 @@ CREATE POLICY "Participants can view room members" ON public.room_participants
       WHERE r.id = room_participants.room_id
         AND (
           r.host_id = auth.uid()
+          OR r.guest_id = auth.uid()
           OR r.status = 'waiting_for_opponent'
+          OR EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(
+              CASE
+                WHEN jsonb_typeof(r.participants) = 'array' THEN r.participants
+                ELSE '[]'::jsonb
+              END
+            ) AS p
+            WHERE p->>'userId' = auth.uid()::text
+               OR p->>'playerId' = auth.uid()::text
+          )
         )
     )
   );
@@ -140,21 +155,20 @@ CREATE POLICY "Users can leave room" ON public.room_participants
 -- ─────────────────────────────────────────────────────────────────────
 -- SECURITY REASONING:
 --
---   SELECT:
+--   SELECT: ZERO cross-table joins. Uses only draft_rooms columns.
 --     (a) host_id = uid — host always sees their room
 --     (b) guest_id = uid — legacy 2-player backward compat
 --     (c) status = waiting_for_opponent — any authenticated user can look
 --         up the room by code to validate before calling join_room()
---     (d) EXISTS in room_participants — confirmed members always see the room
---         (sub-query direction: draft_rooms → room_participants, no cycle)
+--     (d) participants JSONB — confirmed members always see the room
+--         checked via row-local JSONB function — NO cross-table join,
+--         NO recursion possible.
 --
 --   INSERT: only host (uid = host_id)
 --
 --   UPDATE: RESTRICTED to confirmed members ONLY.
---     New joiners (not yet in room_participants) are NOT granted UPDATE.
---     All join-time writes happen inside join_room() SECURITY DEFINER
---     which bypasses RLS internally. This closes the "any authed user
---     can UPDATE any waiting room" vulnerability.
+--     Evaluated on host_id, guest_id, and participants JSONB.
+--     ZERO cross-table joins to room_participants.
 
 DROP POLICY IF EXISTS "Participants or waiting room lookup" ON public.draft_rooms;
 CREATE POLICY "Participants or waiting room lookup" ON public.draft_rooms
@@ -164,9 +178,15 @@ CREATE POLICY "Participants or waiting room lookup" ON public.draft_rooms
     OR auth.uid() = guest_id
     OR status = 'waiting_for_opponent'
     OR EXISTS (
-      SELECT 1 FROM public.room_participants rp
-      WHERE rp.room_id = draft_rooms.id
-        AND rp.user_id = auth.uid()
+      SELECT 1
+      FROM jsonb_array_elements(
+        CASE
+          WHEN jsonb_typeof(draft_rooms.participants) = 'array' THEN draft_rooms.participants
+          ELSE '[]'::jsonb
+        END
+      ) AS p
+      WHERE p->>'userId' = auth.uid()::text
+         OR p->>'playerId' = auth.uid()::text
     )
   );
 
@@ -175,7 +195,7 @@ CREATE POLICY "Host can create draft room" ON public.draft_rooms
   FOR INSERT
   WITH CHECK (auth.uid() = host_id);
 
--- UPDATE: ONLY confirmed room members. No open-slot grant for strangers.
+-- UPDATE: ONLY confirmed room members. Uses JSONB, NO join to room_participants.
 -- WITH CHECK mirrors USING — prevents a member from re-writing the row
 -- to transfer ownership to a different user.
 DROP POLICY IF EXISTS "Participants can update draft room" ON public.draft_rooms;
@@ -185,20 +205,30 @@ CREATE POLICY "Participants can update draft room" ON public.draft_rooms
     auth.uid() = host_id
     OR auth.uid() = guest_id
     OR EXISTS (
-      SELECT 1 FROM public.room_participants rp
-      WHERE rp.room_id = draft_rooms.id
-        AND rp.user_id = auth.uid()
+      SELECT 1
+      FROM jsonb_array_elements(
+        CASE
+          WHEN jsonb_typeof(draft_rooms.participants) = 'array' THEN draft_rooms.participants
+          ELSE '[]'::jsonb
+        END
+      ) AS p
+      WHERE p->>'userId' = auth.uid()::text
+         OR p->>'playerId' = auth.uid()::text
     )
   )
   WITH CHECK (
-    -- After the update, host_id must still belong to a valid room member.
-    -- This prevents a participant from changing host_id to someone else.
     auth.uid() = host_id
     OR auth.uid() = guest_id
     OR EXISTS (
-      SELECT 1 FROM public.room_participants rp
-      WHERE rp.room_id = draft_rooms.id
-        AND rp.user_id = auth.uid()
+      SELECT 1
+      FROM jsonb_array_elements(
+        CASE
+          WHEN jsonb_typeof(draft_rooms.participants) = 'array' THEN draft_rooms.participants
+          ELSE '[]'::jsonb
+        END
+      ) AS p
+      WHERE p->>'userId' = auth.uid()::text
+         OR p->>'playerId' = auth.uid()::text
     )
   );
 
