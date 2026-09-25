@@ -42,14 +42,20 @@ CREATE TRIGGER trigger_draft_rooms_updated_at
 ALTER TABLE draft_rooms ENABLE ROW LEVEL SECURITY;
 
 -- 5. RLS Policies
--- SELECT Policy: Users can view rooms they host, guest in, or waiting rooms by code
+-- SELECT Policy: Host, legacy guest, waiting rooms, or any existing participant.
+-- status = 'waiting_for_opponent' allows P3/P4 to look up a room before joining.
 DROP POLICY IF EXISTS "Participants or waiting room lookup" ON draft_rooms;
 CREATE POLICY "Participants or waiting room lookup" ON draft_rooms
   FOR SELECT
   USING (
     auth.uid() = host_id OR
     auth.uid() = guest_id OR
-    status = 'waiting_for_opponent'
+    status = 'waiting_for_opponent' OR
+    EXISTS (
+      SELECT 1 FROM public.room_participants rp
+      WHERE rp.room_id = draft_rooms.id
+        AND rp.user_id = auth.uid()
+    )
   );
 
 -- INSERT Policy: Authenticated users can create rooms where they are the host
@@ -58,14 +64,26 @@ CREATE POLICY "Host can create draft room" ON draft_rooms
   FOR INSERT
   WITH CHECK (auth.uid() = host_id);
 
--- UPDATE Policy: Host or assigned guest can update room state
+-- UPDATE Policy: Host, legacy guest, any existing participant, OR new joiner for open waiting rooms.
+-- The open-slot check uses jsonb_array_length vs max_players column.
 DROP POLICY IF EXISTS "Participants can update draft room" ON draft_rooms;
 CREATE POLICY "Participants can update draft room" ON draft_rooms
   FOR UPDATE
   USING (
     auth.uid() = host_id OR
     auth.uid() = guest_id OR
-    (guest_id IS NULL AND status = 'waiting_for_opponent')
+    EXISTS (
+      SELECT 1 FROM public.room_participants rp
+      WHERE rp.room_id = draft_rooms.id
+        AND rp.user_id = auth.uid()
+    ) OR
+    (
+      status = 'waiting_for_opponent' AND
+      (
+        max_players IS NULL OR
+        jsonb_array_length(COALESCE(game_state->'participants', '[]'::jsonb)) < max_players
+      )
+    )
   );
 
 -- Enable Realtime for draft_rooms table
