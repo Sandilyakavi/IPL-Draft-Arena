@@ -164,7 +164,13 @@ export async function fetchRoomByCode(roomCode) {
 
 /**
  * Joins a guest user to an existing waiting draft room.
- * In production mode, updates strictly in Supabase and throws visible error on failure.
+ *
+ * Production path: calls the join_room() SECURITY DEFINER RPC which
+ * atomically validates capacity, assigns the next role slot, inserts
+ * into room_participants, and updates draft_rooms — all in one
+ * transaction. This eliminates the direct-UPDATE RLS vulnerability.
+ *
+ * Memory/offline path: uses joinMultiplayerRoomContract() as before.
  */
 export async function joinRoom(roomCode, guestUser) {
   if (!roomCode) {
@@ -178,18 +184,65 @@ export async function joinRoom(roomCode, guestUser) {
   }
 
   const cleanCode = roomCode.trim().toUpperCase();
-  const roomContract = await fetchRoomByCode(cleanCode);
 
+  // ── Production path: use SECURITY DEFINER RPC ──────────────────────
+  if (isSupabaseConfigured && supabase) {
+    const displayName = guestUser.username || guestUser.email || 'Player';
+    const avatar = guestUser.avatar || '🏏';
+    const favoriteTeam = guestUser.favoriteTeamId || null;
+
+    const { data, error } = await supabase.rpc('join_room', {
+      p_room_code:     cleanCode,
+      p_display_name:  displayName,
+      p_avatar:        avatar,
+      p_favorite_team: favoriteTeam,
+    });
+
+    if (error) {
+      // Map RPC error code prefixes to user-friendly messages
+      const msg = error.message || '';
+      if (msg.includes('ROOM_NOT_FOUND')) {
+        throw new Error(`Room with code "${cleanCode}" was not found`);
+      }
+      if (msg.includes('ROOM_FULL')) {
+        throw new Error(`Room "${cleanCode}" is full — no more players can join`);
+      }
+      if (msg.includes('ROOM_NOT_WAITING')) {
+        throw new Error(`Room "${cleanCode}" is not open for joining (already started or finished)`);
+      }
+      if (msg.includes('ALREADY_HOST')) {
+        throw new Error('Host cannot join their own room as guest');
+      }
+      if (msg.includes('UNAUTHENTICATED')) {
+        throw new Error('You must be signed in with a valid account to join an online room');
+      }
+      throw new Error(`Failed to join room: ${msg}`);
+    }
+
+    if (!data || !data.ok) {
+      throw new Error(`Unexpected response from join_room RPC for room "${cleanCode}"`);
+    }
+
+    // The RPC returns the full game_state after the join
+    const updatedContract = data.gameState || data.game_state;
+    if (!updatedContract) {
+      throw new Error('join_room RPC did not return game state');
+    }
+
+    memoryRooms.set(cleanCode, updatedContract);
+
+    const isFull = data.isFull || data.status === ROOM_STATUS.IN_PROGRESS;
+    const eventName = isFull ? MULTIPLAYER_EVENTS.GAME_STARTED : MULTIPLAYER_EVENTS.PLAYER_JOINED;
+    await broadcastRoomEvent(cleanCode, eventName, updatedContract);
+    await broadcastRoomEvent(cleanCode, 'ROOM_STATE_UPDATED', updatedContract);
+
+    return updatedContract;
+  }
+
+  // ── Memory/offline path (no Supabase) ──────────────────────────────
+  const roomContract = memoryRooms.get(cleanCode);
   if (!roomContract) {
     throw new Error(`Room with code "${cleanCode}" was not found`);
-  }
-  const maxAllowed = roomContract.maxPlayers || 2;
-  const currentCount = Array.isArray(roomContract.participants)
-    ? roomContract.participants.length
-    : (roomContract.guest ? 2 : 1);
-
-  if (currentCount >= maxAllowed) {
-    throw new Error(`Room is full (${maxAllowed} players maximum). Room "${cleanCode}" has reached capacity.`);
   }
   if (roomContract.status !== ROOM_STATUS.WAITING) {
     throw new Error(`Room "${cleanCode}" is not open for joining. Current status: ${roomContract.status}`);
@@ -201,28 +254,8 @@ export async function joinRoom(roomCode, guestUser) {
   const updatedContract = joinMultiplayerRoomContract(roomContract, guestUser);
   const isFull = updatedContract.status === ROOM_STATUS.IN_PROGRESS;
 
-  if (isSupabaseConfigured && supabase) {
-    const { error } = await supabase
-      .from('draft_rooms')
-      .update({
-        // CRITICAL RLS FIX: Keep guest_id NULL while waiting so subsequent players (P3, P4)
-        // can join and update under RLS policy: (guest_id IS NULL AND status = 'waiting_for_opponent').
-        // Only assign guest_id when the room has reached full capacity and transitions to IN_PROGRESS.
-        guest_id: isFull ? (updatedContract.guest?.userId || guestUser.id) : null,
-        status: updatedContract.status,
-        game_state: updatedContract,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('room_code', cleanCode);
-
-    if (error) {
-      throw new Error(`Failed to join room in production database: ${error.message}`);
-    }
-  }
-
   memoryRooms.set(cleanCode, updatedContract);
 
-  // Authoritatively broadcast to all existing connected clients (P1, P2, etc.)
   const eventName = isFull ? MULTIPLAYER_EVENTS.GAME_STARTED : MULTIPLAYER_EVENTS.PLAYER_JOINED;
   await broadcastRoomEvent(cleanCode, eventName, updatedContract);
   await broadcastRoomEvent(cleanCode, 'ROOM_STATE_UPDATED', updatedContract);
