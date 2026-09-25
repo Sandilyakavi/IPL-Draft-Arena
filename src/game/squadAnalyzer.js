@@ -6,6 +6,7 @@
 import { getSquadQualityScore, getPlayerRating } from './playerRatingEngine.js';
 import { DEFAULT_SEASON } from '../config/seasonConfig.js';
 import teams from '../data/teams.json' with { type: 'json' };
+import { calculateDetailedSquadScores } from './squadScoring.js';
 
 /**
  * Calculates Squad Balance Score (0–30 points).
@@ -102,6 +103,7 @@ export function getScoreLabel(finalScore) {
 export function evaluateSquad(squad = [], season = DEFAULT_SEASON) {
   const quality = getSquadQualityScore(squad, season);
   const balance = calculateSquadBalance(squad);
+  const detailed = calculateDetailedSquadScores(squad, season);
 
   const finalScore = Math.min(100, Math.max(0, quality.qualityScore + balance.totalBalanceScore));
   const scoreLabel = getScoreLabel(finalScore);
@@ -111,6 +113,9 @@ export function evaluateSquad(squad = [], season = DEFAULT_SEASON) {
     scoreLabel,
     qualityScore: quality.qualityScore,
     balanceScore: balance.totalBalanceScore,
+    overallSquadScore: detailed.overallSquadScore,
+    categories: detailed.categories,
+    detailedScores: detailed,
     qualityDetails: quality,
     balanceDetails: balance,
     strengths: generateStrengths(squad, quality, balance),

@@ -1,10 +1,10 @@
 /**
  * src/services/multiplayerSyncService.js
  * =================================================================
- * MULTIPLAYER REALTIME TURN SYNCHRONIZATION SERVICE (Phase 8 Step 3)
+ * MULTIPLAYER REALTIME TURN SYNCHRONIZATION SERVICE (2–4 PLAYERS)
  * =================================================================
- * Enforces database/state-backed 2-player turn synchronization.
- * Handles WHEEL_SPUN, PICK_CONFIRMED, TURN_CHANGED, and GAME_COMPLETED actions.
+ * Enforces database/state-backed 2–4 player turn synchronization.
+ * Handles WHEEL_SPUN, PICK_CONFIRMED, TURN_CHANGED, AUTO_PICK, and GAME_COMPLETED actions.
  * Rejects out-of-turn, duplicate, stale, or unauthorized player actions.
  *
  * PRESERVES 100% single-player local game state independence.
@@ -21,8 +21,16 @@ import {
   validateStateTransition,
 } from '../multiplayer/multiplayerArchitecture.js';
 import { fetchRoomByCode, _setMemoryRoom } from './multiplayerRoomService.js';
-import { startGame, spinTeam, confirmPick, createInitialGame, updateSquadOrder } from '../game/draftEngine.js';
+import {
+  startGame,
+  spinTeam,
+  confirmPick,
+  createInitialGame,
+  updateSquadOrder,
+  getCurrentPlayer,
+} from '../game/draftEngine.js';
 import { validatePick } from '../game/ruleEngine.js';
+import { getBestAvailablePick } from '../game/pickValueEngine.js';
 
 /**
  * Executes a multiplayer wheel spin action.
@@ -44,7 +52,17 @@ export async function executeMultiplayerSpin(roomCode, userId, randomFn = Math.r
   // Ensure game engine state exists
   let gameState = roomContract.gameStateSnapshot;
   if (!gameState || gameState.status === 'setup') {
-    gameState = startGame(createInitialGame({}, { season: roomContract.season }), randomFn);
+    gameState = startGame(
+      createInitialGame(
+        {},
+        {
+          season: roomContract.season,
+          playerCount: roomContract.maxPlayers || 2,
+          draftMode: roomContract.draftMode || 'snake',
+        }
+      ),
+      randomFn
+    );
   }
 
   // Authoritative turn ownership validation
@@ -58,9 +76,13 @@ export async function executeMultiplayerSpin(roomCode, userId, randomFn = Math.r
   const updatedEngineState = spinRes.updatedGameState || spinRes;
   const currentVersion = (roomContract.version || 1) + 1;
 
+  const timerSecs = roomContract.turnTimerSeconds || 20;
+  const turnDeadline = new Date(Date.now() + timerSecs * 1000).toISOString();
+
   const updatedContract = JSON.parse(JSON.stringify(roomContract));
   updatedContract.gameStateSnapshot = updatedEngineState;
   updatedContract.version = currentVersion;
+  updatedContract.turnDeadline = turnDeadline;
   updatedContract.updatedAt = new Date().toISOString();
 
   // Persist to memory store
@@ -129,7 +151,11 @@ export async function executeMultiplayerPick(roomCode, userId, selectedPlayerId)
   }
 
   const updatedEngineState = pickRes.updatedGameState;
-  const isComplete = updatedEngineState.status === 'complete' || updatedEngineState.pickNumber >= 24;
+  const playerCount = updatedEngineState.playerCount || roomContract.maxPlayers || 2;
+  const squadSize = updatedEngineState.rules?.squadSize || 12;
+  const maxPicksTotal = squadSize * playerCount;
+
+  const isComplete = updatedEngineState.status === 'complete' || updatedEngineState.pickNumber >= maxPicksTotal;
   const nextStatus = isComplete ? ROOM_STATUS.COMPLETED : ROOM_STATUS.IN_PROGRESS;
   const currentVersion = (roomContract.version || 1) + 1;
 
@@ -139,6 +165,35 @@ export async function executeMultiplayerPick(roomCode, userId, selectedPlayerId)
   updatedContract.gameStateSnapshot = updatedEngineState;
   updatedContract.version = currentVersion;
   updatedContract.updatedAt = new Date().toISOString();
+
+  // Set synchronized turn deadline for next turn
+  const timerSecs = updatedContract.turnTimerSeconds || 20;
+  updatedContract.turnDeadline = isComplete ? null : new Date(Date.now() + timerSecs * 1000).toISOString();
+
+  // Sync participants array squads and currentTurnPlayerId
+  if (Array.isArray(updatedContract.participants) && Array.isArray(updatedEngineState.players)) {
+    updatedContract.participants = updatedContract.participants.map(part => {
+      const engineP = updatedEngineState.players.find(p => p.id === part.role);
+      if (engineP) {
+        return {
+          ...part,
+          squad: engineP.squad || [],
+          pickCount: engineP.squad ? engineP.squad.length : 0,
+        };
+      }
+      return part;
+    });
+
+    updatedContract.host = updatedContract.participants[0];
+    if (updatedContract.participants[1]) {
+      updatedContract.guest = updatedContract.participants[1];
+    }
+
+    const activeParticipant = updatedContract.participants.find(p => p.role === updatedEngineState.currentTurn);
+    if (activeParticipant) {
+      updatedContract.currentTurnPlayerId = activeParticipant.playerId;
+    }
+  }
 
   // Persist to memory store
   _setMemoryRoom(roomCode, updatedContract);
@@ -166,6 +221,58 @@ export async function executeMultiplayerPick(roomCode, userId, selectedPlayerId)
     nextTurnRole: updatedEngineState.currentTurn,
     pickNumber: updatedEngineState.pickNumber,
     isComplete,
+  };
+}
+
+/**
+ * Executes an auto-pick when turn timer expires.
+ * Uses Player Pick Value Engine to select the highest value valid player.
+ */
+export async function executeMultiplayerAutoPick(roomCode, randomFn = Math.random) {
+  if (!roomCode) {
+    throw new Error('Room code is required to execute auto pick');
+  }
+
+  const roomContract = await fetchRoomByCode(roomCode);
+  if (!roomContract || roomContract.status !== ROOM_STATUS.IN_PROGRESS) {
+    return null;
+  }
+
+  let gameState = roomContract.gameStateSnapshot;
+  if (!gameState) return null;
+
+  const currentRole = gameState.currentTurn || roomContract.currentTurnRole;
+  const currentParticipant = (Array.isArray(roomContract.participants)
+    ? roomContract.participants.find(p => p.role === currentRole)
+    : null) || (currentRole === 'player1' ? roomContract.host : roomContract.guest);
+
+  if (!currentParticipant) return null;
+  const userId = currentParticipant.playerId || currentParticipant.userId;
+
+  // 1. If wheel has not been spun yet, spin the wheel first
+  if (!gameState.currentTeamId || gameState.status !== 'player-selection') {
+    const spinRes = await executeMultiplayerSpin(roomCode, userId, randomFn);
+    gameState = spinRes.roomContract.gameStateSnapshot;
+  }
+
+  // 2. Get eligible players
+  const eligiblePlayers = gameState.currentEligiblePlayers || [];
+  if (eligiblePlayers.length === 0) {
+    return null;
+  }
+
+  // 3. Find highest Pick Value player
+  const currentUser = getCurrentPlayer(gameState);
+  const bestPlayer = getBestAvailablePick(eligiblePlayers, currentUser?.squad || [], gameState.rules, gameState.season);
+
+  if (!bestPlayer) return null;
+
+  // 4. Confirm pick automatically
+  const pickRes = await executeMultiplayerPick(roomCode, userId, bestPlayer.id);
+  return {
+    ...pickRes,
+    autoPicked: true,
+    player: bestPlayer,
   };
 }
 
@@ -312,4 +419,3 @@ export async function executeMultiplayerEndDraft(roomCode, userId, reason = 'Dra
     endedBy: userId,
   };
 }
-

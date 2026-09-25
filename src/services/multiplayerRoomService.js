@@ -67,7 +67,13 @@ export async function generateCollisionSafeRoomCode(client = supabase) {
  * Creates a new multiplayer draft room for host user.
  * In production mode, writes strictly to Supabase and throws visible error on failure.
  */
-export async function createRoom(hostUser, season = '2026') {
+export async function createRoom(
+  hostUser,
+  season = '2026',
+  maxPlayers = 2,
+  turnTimerSeconds = 20,
+  draftMode = 'snake'
+) {
   if (!hostUser || !hostUser.id) {
     throw new Error('Host user identity is required to create a multiplayer room');
   }
@@ -76,7 +82,14 @@ export async function createRoom(hostUser, season = '2026') {
   }
 
   const roomCode = await generateCollisionSafeRoomCode();
-  const roomContract = createMultiplayerRoomContract(hostUser, roomCode, season);
+  const roomContract = createMultiplayerRoomContract(
+    hostUser,
+    roomCode,
+    season,
+    maxPlayers,
+    turnTimerSeconds,
+    draftMode
+  );
 
   if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
@@ -164,6 +177,14 @@ export async function joinRoom(roomCode, guestUser) {
   if (!roomContract) {
     throw new Error(`Room with code "${cleanCode}" was not found`);
   }
+  const maxAllowed = roomContract.maxPlayers || 2;
+  const currentCount = Array.isArray(roomContract.participants)
+    ? roomContract.participants.length
+    : (roomContract.guest ? 2 : 1);
+
+  if (currentCount >= maxAllowed) {
+    throw new Error(`Room is full (${maxAllowed} players maximum). Room "${cleanCode}" has reached capacity.`);
+  }
   if (roomContract.status !== ROOM_STATUS.WAITING) {
     throw new Error(`Room "${cleanCode}" is not open for joining. Current status: ${roomContract.status}`);
   }
@@ -250,6 +271,16 @@ export async function reconnectRoom(roomCode, userId) {
   if (!role) return null;
 
   // Restore connection state
+  if (Array.isArray(roomContract.participants)) {
+    const participant = roomContract.participants.find(p => p.playerId === userId || p.userId === userId);
+    if (participant) {
+      participant.connected = true;
+      participant.isConnected = true;
+      participant.lastSeen = new Date().toISOString();
+      participant.lastSeenAt = new Date().toISOString();
+    }
+  }
+
   if (role === TURN_ROLES.HOST && roomContract.host) {
     roomContract.host.isConnected = true;
     roomContract.host.lastSeenAt = new Date().toISOString();

@@ -352,28 +352,56 @@ function SquadCard({ user, isCurrentTurn, userKey, onUpdateSquadOrder }) {
 }
 
 /**
- * SquadDisplay Panel containing both Player 1 and Player 2 squads.
+ * SquadDisplay Panel containing 2–4 player squads in a responsive grid layout.
+ * Supports dynamic player count (2, 3, or 4 players) and legacy (player1, player2) props.
  */
-export default function SquadDisplay({ player1, player2, currentTurn, onUpdateSquadOrder }) {
-  return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-        <Users className="w-4 h-4 text-cyan-400" /> User Squad Tracker
-      </h3>
+export default function SquadDisplay({ player1, player2, players, currentTurn, onUpdateSquadOrder }) {
+  const allPlayers = Array.isArray(players) && players.length >= 2
+    ? players
+    : [player1, player2].filter(Boolean);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
-        <SquadCard
-          user={player1}
-          isCurrentTurn={currentTurn === 'player1'}
-          userKey="player1"
-          onUpdateSquadOrder={onUpdateSquadOrder}
-        />
-        <SquadCard
-          user={player2}
-          isCurrentTurn={currentTurn === 'player2'}
-          userKey="player2"
-          onUpdateSquadOrder={onUpdateSquadOrder}
-        />
+  const gridColsClass = allPlayers.length === 4
+    ? 'grid grid-cols-1 md:grid-cols-2 gap-4'
+    : allPlayers.length === 3
+    ? 'grid grid-cols-1 md:grid-cols-3 gap-3'
+    : 'grid grid-cols-1 md:grid-cols-2 gap-4';
+
+  const activePlayer = allPlayers.find((p, idx) => p.id === currentTurn || `player${idx + 1}` === currentTurn);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+          <Users className="w-4 h-4 text-cyan-400" /> Squad Tracker ({allPlayers.length} Teams)
+        </h3>
+        {activePlayer && (
+          <span className="text-[11px] font-bold text-cyan-300 bg-cyan-950/60 border border-cyan-800/60 px-3 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span>{activePlayer.name || 'Active Player'} is choosing...</span>
+          </span>
+        )}
+      </div>
+
+      <div className={gridColsClass}>
+        {allPlayers.map((player, idx) => {
+          const userKey = player.id || `player${idx + 1}`;
+          const isTurn = currentTurn === userKey || (idx === 0 && currentTurn === 'player1') || (idx === 1 && currentTurn === 'player2');
+          return (
+            <div
+              key={userKey}
+              className={`rounded-2xl transition-all duration-300 ${
+                isTurn ? 'ring-2 ring-cyan-400 shadow-xl shadow-cyan-950/50' : 'opacity-95'
+              }`}
+            >
+              <SquadCard
+                user={player}
+                isCurrentTurn={isTurn}
+                userKey={userKey}
+                onUpdateSquadOrder={onUpdateSquadOrder}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

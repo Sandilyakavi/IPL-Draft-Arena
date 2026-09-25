@@ -27,16 +27,18 @@ import RuleTracker from '../components/rules/RuleTracker';
 import DraftHistory from '../components/history/DraftHistory';
 import DraftComplete from '../components/game/DraftComplete';
 
-import { CheckCircle2, Globe, Users, Copy, Check } from 'lucide-react';
+import { CheckCircle2, Globe, Users, Copy, Check, Clock } from 'lucide-react';
 import {
   executeMultiplayerSpin,
   executeMultiplayerPick,
+  executeMultiplayerAutoPick,
   syncRoomState,
   executeMultiplayerUpdateSquadOrder,
   executeMultiplayerEndDraft,
 } from '../services/multiplayerSyncService';
 import { subscribeToRoom } from '../services/multiplayerRoomService';
 import { isUserTurn, resolveUserRole, ROOM_STATUS } from '../multiplayer/multiplayerArchitecture';
+import { getBestAvailablePick } from '../game/pickValueEngine';
 
 export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   const [isMultiplayerMode, setIsMultiplayerMode] = useState(false);
@@ -59,6 +61,8 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   const [showOpponentEndedModal, setShowOpponentEndedModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [lastPickBanner, setLastPickBanner] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(20);
+  const autoPickTriggered = useRef(false);
 
   let authUser = null;
   let authProfile = null;
@@ -142,6 +146,92 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
   const isMyTurn = isMultiplayerMode
     ? isUserTurn(multiplayerRoom, currentUserId, gameState?.currentTurn)
     : true;
+
+  // ── Auto-pick handler when timer expires ─────────────────────────
+  const handleTurnTimeout = useCallback(async () => {
+    if (draftFinished || isSpinning) return;
+
+    if (isMultiplayerMode) {
+      if (isMyTurn && multiplayerRoom?.roomCode) {
+        try {
+          const res = await executeMultiplayerAutoPick(multiplayerRoom.roomCode);
+          if (res?.roomContract) {
+            setMultiplayerRoom(res.roomContract);
+            setGameState(res.roomContract.gameStateSnapshot);
+          }
+        } catch (err) {
+          console.warn('Auto pick failed:', err.message);
+        }
+      }
+      return;
+    }
+
+    // Single-player local auto-pick
+    if (gameState.status === 'spinning') {
+      const spinRes = spinTeam(gameState);
+      if (spinRes.success) {
+        const eligible = spinRes.updatedGameState.currentEligiblePlayers || [];
+        const best = getBestAvailablePick(eligible, getCurrentPlayer(spinRes.updatedGameState)?.squad || [], gameState.rules, gameState.season);
+        if (best) {
+          const pickRes = confirmPick(spinRes.updatedGameState, best.id);
+          if (pickRes.success) {
+            setGameState(pickRes.updatedGameState);
+          }
+        } else {
+          setGameState(spinRes.updatedGameState);
+        }
+      }
+    } else if (gameState.status === 'player-selection') {
+      const eligible = gameState.currentEligiblePlayers || [];
+      const best = getBestAvailablePick(eligible, activeUser?.squad || [], gameState.rules, gameState.season);
+      if (best) {
+        const pickRes = confirmPick(gameState, best.id);
+        if (pickRes.success) {
+          setGameState(pickRes.updatedGameState);
+        }
+      }
+    }
+  }, [isMultiplayerMode, isMyTurn, multiplayerRoom?.roomCode, gameState, activeUser, draftFinished, isSpinning]);
+
+  // Turn timer countdown and synchronization
+  useEffect(() => {
+    if (draftFinished || gameState?.status === 'complete' || gameState?.status === 'setup') {
+      return;
+    }
+
+    autoPickTriggered.current = false;
+
+    if (isMultiplayerMode && multiplayerRoom?.turnDeadline) {
+      const diff = Math.max(0, Math.round((new Date(multiplayerRoom.turnDeadline).getTime() - Date.now()) / 1000));
+      setTimeLeft(diff);
+    } else {
+      setTimeLeft(20);
+    }
+
+    const timerInterval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerInterval);
+          if (!autoPickTriggered.current) {
+            autoPickTriggered.current = true;
+            handleTurnTimeout();
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerInterval);
+  }, [
+    gameState?.currentTurn,
+    gameState?.pickNumber,
+    gameState?.status,
+    isMultiplayerMode,
+    multiplayerRoom?.turnDeadline,
+    draftFinished,
+    handleTurnTimeout,
+  ]);
 
   // ── Handle Start Draft from Setup ─────────────────────────────
   const handleStartDraft = useCallback((initialStateOrContract, isMultiplayer = false) => {
@@ -469,7 +559,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
       <div className="max-w-7xl mx-auto px-4 pt-6 space-y-6">
 
         {/* MULTIPLAYER ROOM & TURN BANNER */}
-        {isMultiplayerMode && multiplayerRoom && (
+        {isMultiplayerMode && multiplayerRoom ? (
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400">
@@ -477,18 +567,28 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-amber-400 font-black uppercase tracking-wider">Online 2-Player Match</span>
+                  <span className="text-[10px] text-amber-400 font-black uppercase tracking-wider">
+                    Online Match ({multiplayerRoom.participants?.length || multiplayerRoom.maxPlayers || 2} Players)
+                  </span>
                   <span className="px-2 py-0.5 bg-slate-800 text-white font-mono text-xs font-bold rounded">
                     Room: {multiplayerRoom.roomCode}
                   </span>
                 </div>
                 <h4 className="font-extrabold text-white text-sm">
-                  {multiplayerRoom.host?.username || 'Host'} vs {multiplayerRoom.guest?.username || 'Guest'}
+                  {activeUser ? `${activeUser.name}'s Turn` : 'Draft in progress'}
                 </h4>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Synchronized Turn Countdown Timer */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl">
+                <Clock className={`w-4 h-4 ${timeLeft <= 5 ? 'text-red-400 animate-pulse' : 'text-cyan-400'}`} />
+                <span className={`font-mono font-black text-sm ${timeLeft <= 5 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+                  00:{String(timeLeft).padStart(2, '0')}
+                </span>
+              </div>
+
               {isMyTurn ? (
                 <span className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-amber-500/20 animate-pulse flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
@@ -496,9 +596,27 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
                 </span>
               ) : (
                 <span className="px-4 py-2 bg-slate-800 border border-slate-700 text-slate-400 font-extrabold text-xs uppercase tracking-wider rounded-xl">
-                  OPPONENT'S TURN (WAITING...)
+                  {activeUser?.name || 'OPPONENT'} IS CHOOSING...
                 </span>
               )}
+            </div>
+          </div>
+        ) : (
+          /* Single Player Turn HUD */
+          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 shadow-lg flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{activeUser?.avatar || '🏏'}</span>
+              <div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold block">Current Turn</span>
+                <h4 className="text-sm font-black text-white">{activeUser?.name || 'Player 1'}</h4>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-1 bg-slate-950 border border-slate-800 rounded-xl">
+              <Clock className={`w-3.5 h-3.5 ${timeLeft <= 5 ? 'text-red-400 animate-pulse' : 'text-cyan-400'}`} />
+              <span className={`font-mono font-black text-xs ${timeLeft <= 5 ? 'text-red-400 animate-pulse' : 'text-slate-200'}`}>
+                00:{String(timeLeft).padStart(2, '0')}
+              </span>
             </div>
           </div>
         )}
@@ -530,7 +648,9 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
           <DraftComplete
             player1={gameState.player1}
             player2={gameState.player2}
+            players={gameState.players}
             onPlayAgain={handleConfirmReset}
+            season={gameState.season || '2026'}
           />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -562,6 +682,9 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
                 isSpinning={isSpinning}
                 disabled={draftFinished || gameState.status !== 'player-selection' || (isMultiplayerMode && !isMyTurn)}
                 currentTurnUser={activeUser}
+                currentSquad={activeUser?.squad}
+                rules={gameState.rules}
+                season={gameState.season || '2026'}
               />
               <DraftHistory pickHistory={gameState.pickHistory} />
             </div>
@@ -571,6 +694,7 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
               <SquadDisplay
                 player1={gameState.player1}
                 player2={gameState.player2}
+                players={gameState.players}
                 currentTurn={gameState.currentTurn}
                 onUpdateSquadOrder={handleUpdateSquadOrder}
               />

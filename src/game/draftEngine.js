@@ -1,6 +1,8 @@
 import { getDraftPool, getPlayerById, getDefaultRules } from '../utils/dataLoader.js';
 import { shuffleArray } from '../utils/shuffle.js';
 import { DEFAULT_SEASON } from '../config/seasonConfig.js';
+import { DRAFT_CONFIG } from '../config/draftConfig.js';
+import { getTurnPlayerForPick, getDraftRound, generateDraftOrder } from './draftOrder.js';
 
 const defaultRules = getDefaultRules();
 import { validatePick, canSelectPlayer, getEligiblePlayers } from './ruleEngine.js';
@@ -8,19 +10,19 @@ import { spinTeam as wheelSpinTeam, getEligibleTeams } from './wheelEngine.js';
 
 /**
  * DraftEngine — Centralized Immutable State Manager for IPL Draft Arena.
- * Handles 2-player turn alternation, rule enforcement, pick recording, and game progression.
+ * Handles 2–4 player turn sequence (dynamic Snake & Alternating modes),
+ * rule enforcement, pick recording, and game progression.
  */
 
-/**
- * Creates the initial game state structure.
- */
 export const DEFAULT_AVATARS = ['🏏', '⚡', '🔥', '👑', '🦁', '🐯', '🦅', '🐼'];
 
 /**
  * Creates the initial game state structure with setup configuration.
+ * Fully supports 2, 3, or 4 players with backward compatibility for legacy 2-player calls.
  */
 export function createInitialGame(customRules = {}, setupConfig = {}) {
   const rules = { ...defaultRules, ...customRules };
+  const squadSize = rules.squadSize || DRAFT_CONFIG.SQUAD_SIZE;
 
   let p1Name = 'Player 1';
   let p2Name = 'Player 2';
@@ -29,6 +31,9 @@ export function createInitialGame(customRules = {}, setupConfig = {}) {
   let p1Fav = null;
   let p2Fav = null;
   let firstTurnChoice = 'player1';
+  let playerCount = 2;
+  let draftMode = 'snake';
+  let configuredPlayers = null;
 
   // Support string arguments for backward compatibility with existing tests
   if (typeof setupConfig === 'string') {
@@ -42,22 +47,45 @@ export function createInitialGame(customRules = {}, setupConfig = {}) {
       p2Name = arguments[2];
     }
   } else if (setupConfig && typeof setupConfig === 'object') {
-    if (setupConfig.player1) {
-      if (typeof setupConfig.player1 === 'string') p1Name = setupConfig.player1;
-      else {
-        p1Name = setupConfig.player1.name || 'Player 1';
-        p1Avatar = setupConfig.player1.avatar || '🏏';
-        p1Fav = setupConfig.player1.favoriteTeamId || null;
+    if (setupConfig.playerCount && [2, 3, 4].includes(Number(setupConfig.playerCount))) {
+      playerCount = Number(setupConfig.playerCount);
+    }
+    if (setupConfig.draftMode) {
+      draftMode = setupConfig.draftMode;
+    }
+
+    if (Array.isArray(setupConfig.players) && setupConfig.players.length >= 2) {
+      playerCount = Math.min(4, Math.max(2, setupConfig.players.length));
+      configuredPlayers = setupConfig.players.slice(0, playerCount).map((p, idx) => ({
+        id: p.id || `player${idx + 1}`,
+        name: (p.name || `Player ${idx + 1}`).trim(),
+        avatar: p.avatar || DEFAULT_AVATARS[idx % DEFAULT_AVATARS.length],
+        favoriteTeamId: p.favoriteTeamId || null,
+        connected: p.connected !== undefined ? p.connected : true,
+        ready: p.ready !== undefined ? p.ready : true,
+        squad: Array.isArray(p.squad) ? [...p.squad] : [],
+        squadOrder: Array.isArray(p.squadOrder) ? [...p.squadOrder] : [],
+        pickCount: p.squad ? p.squad.length : 0,
+      }));
+    } else {
+      if (setupConfig.player1) {
+        if (typeof setupConfig.player1 === 'string') p1Name = setupConfig.player1;
+        else {
+          p1Name = setupConfig.player1.name || 'Player 1';
+          p1Avatar = setupConfig.player1.avatar || '🏏';
+          p1Fav = setupConfig.player1.favoriteTeamId || null;
+        }
+      }
+      if (setupConfig.player2) {
+        if (typeof setupConfig.player2 === 'string') p2Name = setupConfig.player2;
+        else {
+          p2Name = setupConfig.player2.name || 'Player 2';
+          p2Avatar = setupConfig.player2.avatar || '⚡';
+          p2Fav = setupConfig.player2.favoriteTeamId || null;
+        }
       }
     }
-    if (setupConfig.player2) {
-      if (typeof setupConfig.player2 === 'string') p2Name = setupConfig.player2;
-      else {
-        p2Name = setupConfig.player2.name || 'Player 2';
-        p2Avatar = setupConfig.player2.avatar || '⚡';
-        p2Fav = setupConfig.player2.favoriteTeamId || null;
-      }
-    }
+
     if (setupConfig.firstTurn) {
       firstTurnChoice = setupConfig.firstTurn;
     }
@@ -66,42 +94,101 @@ export function createInitialGame(customRules = {}, setupConfig = {}) {
   p1Name = (p1Name || '').trim() || 'Player 1';
   p2Name = (p2Name || '').trim() || 'Player 2';
 
-  return {
-    status: 'setup', // 'setup' | 'spinning' | 'team-selected' | 'player-selection' | 'complete' | 'error'
-    season: setupConfig?.season || DEFAULT_SEASON,
-    currentTurn: 'player1', // Default before start
-    firstTurnResult: null,
-    pickNumber: 0, // 0..24
-    setup: {
-      player1: {
-        name: p1Name,
-        avatar: p1Avatar,
-        favoriteTeamId: p1Fav,
-      },
-      player2: {
-        name: p2Name,
-        avatar: p2Avatar,
-        favoriteTeamId: p2Fav,
-      },
-      firstTurn: firstTurnChoice,
-      completed: false,
-    },
-    player1: {
+  // Build canonical players array
+  let players = [];
+  if (configuredPlayers) {
+    players = configuredPlayers;
+  } else {
+    players.push({
       id: 'player1',
       name: p1Name,
       avatar: p1Avatar,
       favoriteTeamId: p1Fav,
+      connected: true,
+      ready: true,
       squad: [],
       squadOrder: [],
-    },
-    player2: {
+      pickCount: 0,
+    });
+    players.push({
       id: 'player2',
       name: p2Name,
       avatar: p2Avatar,
       favoriteTeamId: p2Fav,
+      connected: true,
+      ready: true,
       squad: [],
       squadOrder: [],
+      pickCount: 0,
+    });
+    if (playerCount >= 3) {
+      players.push({
+        id: 'player3',
+        name: setupConfig?.player3?.name || 'Player 3',
+        avatar: setupConfig?.player3?.avatar || '🔥',
+        favoriteTeamId: setupConfig?.player3?.favoriteTeamId || null,
+        connected: true,
+        ready: true,
+        squad: [],
+        squadOrder: [],
+        pickCount: 0,
+      });
+    }
+    if (playerCount >= 4) {
+      players.push({
+        id: 'player4',
+        name: setupConfig?.player4?.name || 'Player 4',
+        avatar: setupConfig?.player4?.avatar || '👑',
+        favoriteTeamId: setupConfig?.player4?.favoriteTeamId || null,
+        connected: true,
+        ready: true,
+        squad: [],
+        squadOrder: [],
+        pickCount: 0,
+      });
+    }
+  }
+
+  const initialTurn = players[0].id;
+
+  const gameState = {
+    status: 'setup',
+    season: setupConfig?.season || DEFAULT_SEASON,
+    playerCount: players.length,
+    draftMode,
+    currentTurn: initialTurn,
+    firstTurnResult: null,
+    pickNumber: 0,
+    roundNumber: 1,
+    pickInRound: 1,
+    setup: {
+      playerCount: players.length,
+      draftMode,
+      firstTurn: firstTurnChoice,
+      completed: false,
+      players: players.map(p => ({
+        id: p.id,
+        name: p.name,
+        avatar: p.avatar,
+        favoriteTeamId: p.favoriteTeamId,
+      })),
+      player1: {
+        name: players[0].name,
+        avatar: players[0].avatar,
+        favoriteTeamId: players[0].favoriteTeamId,
+      },
+      player2: {
+        name: players[1].name,
+        avatar: players[1].avatar,
+        favoriteTeamId: players[1].favoriteTeamId,
+      },
     },
+    players,
+    // Backward compatibility anchors for P1, P2, P3, P4
+    player1: players[0],
+    player2: players[1],
+    ...(players[2] ? { player3: players[2] } : {}),
+    ...(players[3] ? { player4: players[3] } : {}),
     selectedPlayerIds: [],
     currentTeamId: null,
     currentEligiblePlayers: [],
@@ -112,6 +199,8 @@ export function createInitialGame(customRules = {}, setupConfig = {}) {
     error: null,
     rules,
   };
+
+  return gameState;
 }
 
 /**
@@ -120,50 +209,55 @@ export function createInitialGame(customRules = {}, setupConfig = {}) {
 export function startGame(gameState, randomFn = Math.random) {
   if (!gameState) gameState = createInitialGame();
 
-  const p1Name = (gameState.setup?.player1?.name || gameState.player1?.name || 'Player 1').trim() || 'Player 1';
-  const p2Name = (gameState.setup?.player2?.name || gameState.player2?.name || 'Player 2').trim() || 'Player 2';
-  const p1Avatar = gameState.setup?.player1?.avatar || gameState.player1?.avatar || '🏏';
-  const p2Avatar = gameState.setup?.player2?.avatar || gameState.player2?.avatar || '⚡';
-  const p1Fav = gameState.setup?.player1?.favoriteTeamId || gameState.player1?.favoriteTeamId || null;
-  const p2Fav = gameState.setup?.player2?.favoriteTeamId || gameState.player2?.favoriteTeamId || null;
+  const players = gameState.players ? [...gameState.players] : [gameState.player1, gameState.player2];
+  const playerCount = players.length;
 
   // Resolve first turn choice
-  const firstTurnChoice = gameState.setup?.firstTurn || 'random';
-  let firstTurnKey = 'player1';
+  const firstTurnChoice = gameState.setup?.firstTurn || 'player1';
+  let firstTurnKey = players[0].id;
 
-  if (firstTurnChoice === 'player1') {
-    firstTurnKey = 'player1';
-  } else if (firstTurnChoice === 'player2') {
-    firstTurnKey = 'player2';
+  if (firstTurnChoice === 'random') {
+    if (playerCount === 2) {
+      firstTurnKey = randomFn() < 0.5 ? 'player1' : 'player2';
+    } else {
+      const randomIdx = Math.floor(randomFn() * playerCount);
+      firstTurnKey = players[randomIdx].id;
+    }
   } else {
-    // 'random'
-    firstTurnKey = randomFn() < 0.5 ? 'player1' : 'player2';
+    const matched = players.find(p => p.id === firstTurnChoice);
+    if (matched) {
+      firstTurnKey = matched.id;
+    } else {
+      firstTurnKey = players[0].id;
+    }
   }
 
-  return {
+  const updatedPlayers = players.map(p => ({
+    ...p,
+    squad: p.squad || [],
+    squadOrder: p.squadOrder || [],
+  }));
+
+  const updatedState = {
     ...gameState,
     status: 'spinning',
     currentTurn: firstTurnKey,
     firstTurnResult: firstTurnKey,
+    playerCount,
     setup: {
       ...gameState.setup,
       completed: true,
     },
-    player1: {
-      ...gameState.player1,
-      name: p1Name,
-      avatar: p1Avatar,
-      favoriteTeamId: p1Fav,
-    },
-    player2: {
-      ...gameState.player2,
-      name: p2Name,
-      avatar: p2Avatar,
-      favoriteTeamId: p2Fav,
-    },
+    players: updatedPlayers,
+    player1: updatedPlayers[0],
+    player2: updatedPlayers[1],
+    ...(updatedPlayers[2] ? { player3: updatedPlayers[2] } : {}),
+    ...(updatedPlayers[3] ? { player4: updatedPlayers[3] } : {}),
     error: null,
     respinNotice: null,
   };
+
+  return updatedState;
 }
 
 /**
@@ -171,6 +265,10 @@ export function startGame(gameState, randomFn = Math.random) {
  */
 export function getCurrentPlayer(gameState) {
   if (!gameState) return null;
+  if (Array.isArray(gameState.players)) {
+    const found = gameState.players.find(p => p.id === gameState.currentTurn);
+    if (found) return found;
+  }
   return gameState[gameState.currentTurn] || gameState.player1;
 }
 
@@ -184,22 +282,19 @@ export function spinTeam(gameState, randomFn = Math.random) {
     return { success: false, error: 'DRAFT_ALREADY_COMPLETE', updatedGameState: gameState };
   }
 
-  // Ensure game is in spinning or team-selected state
   if (gameState.status !== 'spinning' && gameState.status !== 'setup') {
     return { success: false, error: 'INVALID_GAME_STATUS_FOR_SPIN', updatedGameState: gameState };
   }
 
-  const spinResult = wheelSpinTeam(gameState, randomFn);
-  return spinResult;
+  return wheelSpinTeam(gameState, randomFn);
 }
 
 /**
- * Manually applies a team spin result (useful for deterministic actions or tests).
+ * Manually applies a team spin result.
  */
 export function applyTeamResult(gameState, teamId, randomFn = Math.random) {
   if (!gameState) return gameState;
-  const currentUserKey = gameState.currentTurn;
-  const currentUser = gameState[currentUserKey];
+  const currentUser = getCurrentPlayer(gameState);
   const userSquad = currentUser ? currentUser.squad : [];
 
   const rawEligible = getEligiblePlayers(teamId, userSquad, gameState, gameState.rules);
@@ -231,7 +326,6 @@ export function selectPendingPlayer(gameState, playerId) {
     return { success: false, error: 'PLAYER_NOT_FOUND', reason: 'Player record not found.' };
   }
 
-  // Verify player belongs to spun franchise
   if (player.teamId !== gameState.currentTeamId) {
     return {
       success: false,
@@ -240,7 +334,7 @@ export function selectPendingPlayer(gameState, playerId) {
     };
   }
 
-  const currentUser = gameState[gameState.currentTurn];
+  const currentUser = getCurrentPlayer(gameState);
   const validation = validatePick(player, currentUser.squad, gameState, gameState.rules);
   if (!validation.isValid) {
     return { success: false, error: 'INVALID_PICK', reason: validation.reason };
@@ -260,7 +354,7 @@ export function selectPendingPlayer(gameState, playerId) {
 
 /**
  * Confirms and executes the pick for the active player.
- * Adds player to squad, updates pick history, and alternates turn.
+ * Adds player to squad, updates pick history, and resolves dynamic turn transition.
  */
 export function confirmPick(gameState, playerId = null) {
   if (!gameState) return { success: false, error: 'NO_GAME_STATE' };
@@ -291,7 +385,7 @@ export function confirmPick(gameState, playerId = null) {
 
   // 2. Validate all game rules
   const currentUserKey = gameState.currentTurn;
-  const currentUser = gameState[currentUserKey];
+  const currentUser = getCurrentPlayer(gameState);
   const validation = validatePick(player, currentUser.squad, gameState, gameState.rules);
 
   if (!validation.isValid) {
@@ -310,7 +404,7 @@ export function confirmPick(gameState, playerId = null) {
     isWicketkeeper: player.isWicketkeeper,
     user: currentUserKey,
     userName: currentUser.name,
-    userAvatar: currentUser.avatar || (currentUserKey === 'player1' ? '🏏' : '⚡'),
+    userAvatar: currentUser.avatar || '🏏',
     timestamp: new Date().toISOString(),
   };
 
@@ -322,27 +416,57 @@ export function confirmPick(gameState, playerId = null) {
     ...currentUser,
     squad: [...currentUser.squad, player],
     squadOrder: updatedSquadOrder,
+    pickCount: (currentUser.pickCount || 0) + 1,
   };
 
-  const nextPickNumber = pickNumber;
+  // Update players array
+  const currentPlayers = Array.isArray(gameState.players) ? [...gameState.players] : [gameState.player1, gameState.player2];
+  const updatedPlayers = currentPlayers.map(p => p.id === currentUser.id ? updatedUser : p);
+
   const updatedSelectedIds = [...gameState.selectedPlayerIds, player.id];
   const updatedPickHistory = [...gameState.pickHistory, pickRecord];
 
-  // 5. Check if draft is complete (24 picks total or both reach squadSize)
-  const maxPicksTotal = gameState.rules.squadSize * 2;
-  const isComplete = nextPickNumber >= maxPicksTotal ||
-    (updatedUser.squad.length >= gameState.rules.squadSize &&
-     gameState[currentUserKey === 'player1' ? 'player2' : 'player1'].squad.length >= gameState.rules.squadSize);
+  // 5. Check if draft is complete
+  const playerCount = updatedPlayers.length;
+  const squadSize = gameState.rules?.squadSize || DRAFT_CONFIG.SQUAD_SIZE;
+  const maxPicksTotal = squadSize * playerCount;
+  const allSquadsFilled = updatedPlayers.every(p => p.squad.length >= squadSize);
+  const isComplete = pickNumber >= maxPicksTotal || allSquadsFilled;
 
-  // 6. Switch turn if not complete
-  const nextTurnUserKey = currentUserKey === 'player1' ? 'player2' : 'player1';
+  // 6. Switch turn using dynamic draft order (2-player alternation or 3-4 player Snake)
+  const nextPickIndex = pickNumber; // 0-indexed for next pick
+  let nextTurnUserKey;
+  if (isComplete) {
+    nextTurnUserKey = currentUserKey;
+  } else if (playerCount === 2) {
+    // 2-player mode: clean alternation between both players
+    nextTurnUserKey = currentUserKey === updatedPlayers[0].id ? updatedPlayers[1].id : updatedPlayers[0].id;
+  } else {
+    // 3 or 4 players: dynamic snake / alternating draft order
+    nextTurnUserKey = getTurnPlayerForPick(
+      nextPickIndex,
+      playerCount,
+      squadSize,
+      gameState.draftMode || 'snake',
+      updatedPlayers.map(p => p.id)
+    );
+  }
+
+  const { roundNumber, pickInRound } = getDraftRound(nextPickIndex, playerCount);
 
   const updatedGameState = {
     ...gameState,
     status: isComplete ? 'complete' : 'spinning',
-    pickNumber: nextPickNumber,
+    pickNumber,
+    roundNumber,
+    pickInRound,
+    players: updatedPlayers,
     [currentUserKey]: updatedUser,
-    currentTurn: isComplete ? currentUserKey : nextTurnUserKey,
+    player1: updatedPlayers[0],
+    player2: updatedPlayers[1],
+    ...(updatedPlayers[2] ? { player3: updatedPlayers[2] } : {}),
+    ...(updatedPlayers[3] ? { player4: updatedPlayers[3] } : {}),
+    currentTurn: nextTurnUserKey,
     selectedPlayerIds: updatedSelectedIds,
     currentTeamId: null,
     currentEligiblePlayers: [],
@@ -370,14 +494,30 @@ export function selectPlayer(gameState, playerId) {
 }
 
 /**
- * Manually switch to next turn (if required by state machine).
+ * Manually switch to next turn.
  */
 export function nextTurn(gameState) {
   if (!gameState) return gameState;
-  const nextTurnUserKey = gameState.currentTurn === 'player1' ? 'player2' : 'player1';
+  const currentPlayers = Array.isArray(gameState.players) ? gameState.players : [gameState.player1, gameState.player2];
+  const playerCount = currentPlayers.length;
+  const nextPickIndex = gameState.pickNumber;
+
+  let nextTurnKey;
+  if (playerCount === 2) {
+    nextTurnKey = gameState.currentTurn === currentPlayers[0].id ? currentPlayers[1].id : currentPlayers[0].id;
+  } else {
+    nextTurnKey = getTurnPlayerForPick(
+      nextPickIndex,
+      playerCount,
+      gameState.rules?.squadSize || 12,
+      gameState.draftMode || 'snake',
+      currentPlayers.map(p => p.id)
+    );
+  }
+
   return {
     ...gameState,
-    currentTurn: nextTurnUserKey,
+    currentTurn: nextTurnKey,
     status: 'spinning',
     currentTeamId: null,
     currentEligiblePlayers: [],
@@ -390,27 +530,46 @@ export function nextTurn(gameState) {
  */
 export function isDraftComplete(gameState) {
   if (!gameState) return false;
-  const maxPicks = (gameState.rules?.squadSize || 12) * 2;
-  const p1Squad = gameState.player1?.squad || [];
-  const p2Squad = gameState.player2?.squad || [];
+  const players = Array.isArray(gameState.players) ? gameState.players : [gameState.player1, gameState.player2].filter(Boolean);
+  const squadSize = gameState.rules?.squadSize || 12;
+  const maxPicks = squadSize * players.length;
+
   return gameState.status === 'complete' ||
     gameState.pickNumber >= maxPicks ||
-    (p1Squad.length >= 12 && p2Squad.length >= 12);
+    (players.length > 0 && players.every(p => (p.squad?.length || 0) >= squadSize));
 }
 
 /**
  * Gets draft progress stats.
  */
 export function getDraftProgress(gameState) {
-  if (!gameState) return { pickNumber: 0, totalPicks: 24, p1Count: 0, p2Count: 0, status: 'setup' };
-  const totalPicks = (gameState.rules?.squadSize || 12) * 2;
+  if (!gameState) {
+    return {
+      pickNumber: 0,
+      totalPicks: 24,
+      playerCount: 2,
+      p1Count: 0,
+      p2Count: 0,
+      status: 'setup',
+      currentTurn: 'player1',
+    };
+  }
+
+  const players = Array.isArray(gameState.players) ? gameState.players : [gameState.player1, gameState.player2].filter(Boolean);
+  const squadSize = gameState.rules?.squadSize || 12;
+  const totalPicks = squadSize * players.length;
+
   return {
     pickNumber: gameState.pickNumber,
     totalPicks,
+    playerCount: players.length,
     p1Count: gameState.player1?.squad?.length || 0,
     p2Count: gameState.player2?.squad?.length || 0,
+    players: players.map(p => ({ id: p.id, name: p.name, avatar: p.avatar, count: p.squad?.length || 0 })),
     status: gameState.status,
     currentTurn: gameState.currentTurn,
+    roundNumber: gameState.roundNumber || 1,
+    pickInRound: gameState.pickInRound || 1,
   };
 }
 
@@ -423,32 +582,38 @@ export function getPickHistory(gameState) {
 
 /**
  * Updates squad presentation order for a player without altering canonical squad or pick history.
- *
- * @param {Object} gameState - Current game state
- * @param {string} playerKey - 'player1' or 'player2'
- * @param {Array<string>} newSquadOrder - Array of player IDs representing new order
- * @returns {Object} Updated immutable game state
  */
 export function updateSquadOrder(gameState, playerKey, newSquadOrder) {
-  if (!gameState || !gameState[playerKey]) return gameState;
-  const user = gameState[playerKey];
-  const squad = user.squad || [];
+  if (!gameState) return gameState;
+  const user = (Array.isArray(gameState.players) && gameState.players.find(p => p.id === playerKey)) || gameState[playerKey];
+  if (!user) return gameState;
 
+  const squad = user.squad || [];
   if (!Array.isArray(newSquadOrder)) return gameState;
 
-  // Verify newSquadOrder contains exact same set of player IDs
   const squadIdSet = new Set(squad.map(p => p.id));
   const newIdSet = new Set(newSquadOrder);
 
   if (squadIdSet.size !== newIdSet.size || ![...squadIdSet].every(id => newIdSet.has(id))) {
-    return gameState; // Ignore invalid reorder attempt
+    return gameState;
   }
+
+  const updatedUser = {
+    ...user,
+    squadOrder: [...newSquadOrder],
+  };
+
+  const players = Array.isArray(gameState.players)
+    ? gameState.players.map(p => p.id === playerKey ? updatedUser : p)
+    : [gameState.player1, gameState.player2];
 
   return {
     ...gameState,
-    [playerKey]: {
-      ...user,
-      squadOrder: [...newSquadOrder],
-    },
+    players,
+    [playerKey]: updatedUser,
+    player1: players[0],
+    player2: players[1],
+    ...(players[2] ? { player3: players[2] } : {}),
+    ...(players[3] ? { player4: players[3] } : {}),
   };
 }

@@ -2,13 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { createRoom, joinRoom, subscribeToRoom } from '../../services/multiplayerRoomService';
 import { ROOM_STATUS } from '../../multiplayer/multiplayerArchitecture';
-import { Users, Copy, Check, ArrowRight, X, Loader2, Sparkles } from 'lucide-react';
+import { Users, Copy, Check, ArrowRight, X, Loader2, Sparkles, Clock, Shuffle } from 'lucide-react';
+import { DRAFT_CONFIG } from '../../config/draftConfig';
 
 /**
  * MultiplayerRoomModal
  * =================================================================
- * UI Component for Creating, Joining, and Waiting in 2-Player Rooms.
- * Handles room code display, copy action, room code entry, and waiting state.
+ * UI Component for Creating, Joining, and Waiting in 2–4 Player Rooms.
+ * Supports:
+ * - 2, 3, or 4 player capacity selector
+ * - Turn timer options (10s, 15s, 20s, 30s)
+ * - Snake or Alternating draft mode
+ * - Multi-player lobby with connected & ready status indicators
+ * - Host manual/automatic start draft trigger
  * =================================================================
  */
 export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
@@ -20,15 +26,22 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Handle room subscription when waiting for guest
+  // Host configuration state
+  const [maxPlayers, setMaxPlayers] = useState(2);
+  const [turnTimer, setTurnTimer] = useState(20);
+  const [draftMode, setDraftMode] = useState('snake');
+
+  // Handle room subscription when waiting in lobby
   useEffect(() => {
-    if (!roomContract || roomContract.status !== ROOM_STATUS.WAITING) return;
+    if (!roomContract) return;
 
     const unsubscribe = subscribeToRoom(
       roomContract.roomCode,
       (updatedRoom) => {
-        if (updatedRoom && updatedRoom.status === ROOM_STATUS.IN_PROGRESS) {
-          setRoomContract(updatedRoom);
+        if (!updatedRoom) return;
+        setRoomContract(updatedRoom);
+
+        if (updatedRoom.status === ROOM_STATUS.IN_PROGRESS) {
           if (onRoomReady) onRoomReady(updatedRoom);
         }
       }
@@ -37,7 +50,7 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
     return () => {
       unsubscribe();
     };
-  }, [roomContract, onRoomReady]);
+  }, [roomContract?.roomCode, onRoomReady]);
 
   if (!isOpen) return null;
 
@@ -58,7 +71,7 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const contract = await createRoom(currentUserData);
+      const contract = await createRoom(currentUserData, '2026', maxPlayers, turnTimer, draftMode);
       setRoomContract(contract);
     } catch (err) {
       setErrorMessage(err.message || 'Failed to create room');
@@ -83,7 +96,9 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
     try {
       const contract = await joinRoom(joinCodeInput, currentUserData);
       setRoomContract(contract);
-      if (onRoomReady) onRoomReady(contract);
+      if (contract.status === ROOM_STATUS.IN_PROGRESS && onRoomReady) {
+        onRoomReady(contract);
+      }
     } catch (err) {
       setErrorMessage(err.message || 'Failed to join room');
     } finally {
@@ -98,10 +113,24 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleStartDraftNow = () => {
+    if (!roomContract) return;
+    if (onRoomReady) {
+      onRoomReady(roomContract);
+    }
+  };
+
+  const participants = Array.isArray(roomContract?.participants)
+    ? roomContract.participants
+    : (roomContract ? [roomContract.host, roomContract.guest].filter(Boolean) : []);
+
+  const totalSlots = roomContract?.maxPlayers || maxPlayers;
+  const isHost = roomContract && (roomContract.hostId === user?.id || roomContract.host?.userId === user?.id);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6 text-white">
-        
+      <div className="relative max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5 text-white">
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -116,8 +145,8 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-white">Online 2-Player Draft</h3>
-            <p className="text-xs text-slate-400 font-medium">Head-to-head multiplayer room setup</p>
+            <h3 className="text-lg font-black text-white">Online Draft Arena</h3>
+            <p className="text-xs text-slate-400 font-medium">Realtime multiplayer draft (2–4 players)</p>
           </div>
         </div>
 
@@ -125,7 +154,7 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
         {!isAuthenticated && (
           <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-300 text-xs space-y-1">
             <p className="font-bold">Sign In Required</p>
-            <p className="text-slate-400">You must be signed in to host or join online 2-player rooms across devices.</p>
+            <p className="text-slate-400">You must be signed in to host or join online rooms across devices.</p>
           </div>
         )}
 
@@ -136,40 +165,107 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
           </div>
         )}
 
-        {/* View Mode: Active Waiting Room vs Tab Setup */}
+        {/* View Mode: Active Waiting Lobby vs Tab Setup */}
         {roomContract ? (
-          /* Waiting Room State */
-          <div className="space-y-6 text-center py-2">
-            <div className="p-6 bg-slate-950/60 border border-slate-800 rounded-2xl space-y-3">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Room Passcode</span>
+          /* Lobby State */
+          <div className="space-y-5 text-center py-1">
+            {/* Room Passcode Banner */}
+            <div className="p-5 bg-slate-950/70 border border-slate-800 rounded-2xl space-y-2">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Room Code</span>
               <div className="flex items-center justify-center gap-3">
                 <span className="text-3xl font-black text-amber-400 tracking-widest font-mono">
                   {roomContract.roomCode}
                 </span>
                 <button
                   onClick={handleCopyCode}
-                  className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-colors"
+                  className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-colors cursor-pointer"
                   title="Copy Code"
                 >
                   {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
-              {copied && <p className="text-xs text-emerald-400 font-semibold">Copied to clipboard!</p>}
+              <p className="text-[11px] text-slate-400">
+                {copied ? <span className="text-emerald-400 font-bold">Copied code to clipboard!</span> : `Share code with friends to join`}
+              </p>
             </div>
 
-            {roomContract.status === ROOM_STATUS.WAITING ? (
-              <div className="space-y-3 py-2">
-                <div className="flex items-center justify-center gap-3 text-amber-400">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="text-sm font-bold">Waiting for opponent to join...</span>
-                </div>
-                <p className="text-xs text-slate-400">Share code <strong className="text-white">{roomContract.roomCode}</strong> with your friend</p>
+            {/* Players Status List */}
+            <div className="space-y-2 text-left">
+              <div className="flex items-center justify-between text-xs px-1">
+                <span className="font-bold uppercase tracking-wider text-slate-400 text-[10px]">
+                  Lobby Participants
+                </span>
+                <span className="font-bold text-amber-400 font-mono text-[11px]">
+                  {participants.length} / {totalSlots} Players
+                </span>
+              </div>
+
+              <div className="space-y-1.5 max-h-[180px] overflow-y-auto pr-1">
+                {Array.from({ length: totalSlots }).map((_, slotIdx) => {
+                  const participant = participants[slotIdx];
+                  if (participant) {
+                    return (
+                      <div
+                        key={participant.playerId || `p-${slotIdx}`}
+                        className="p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl flex items-center justify-between text-xs"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base">{participant.avatar || '🏏'}</span>
+                          <div className="truncate">
+                            <span className="font-bold text-white block truncate">
+                              {participant.displayName || participant.username || `Player ${slotIdx + 1}`}
+                            </span>
+                            <span className="text-[9px] text-slate-500 font-mono">
+                              {slotIdx === 0 ? 'Host' : `Player ${slotIdx + 1}`}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Ready
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={`empty-${slotIdx}`}
+                      className="p-2.5 bg-slate-950/30 border border-dashed border-slate-800/80 rounded-xl flex items-center justify-between text-xs text-slate-500"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-600 font-mono text-[10px]">#{slotIdx + 1}</span>
+                        <span className="italic text-[11px]">Waiting for player...</span>
+                      </div>
+                      <span className="w-2 h-2 rounded-full bg-amber-500/50 animate-ping" />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Waiting or Ready Banner */}
+            {participants.length < totalSlots ? (
+              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                <span>Waiting for {totalSlots - participants.length} more player(s)...</span>
               </div>
             ) : (
-              <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm font-bold flex items-center justify-center gap-2">
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-bold flex items-center justify-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                <span>Opponent joined! Room Ready.</span>
+                <span>All {totalSlots} players ready! Starting draft...</span>
               </div>
+            )}
+
+            {/* Host Start Draft Override */}
+            {isHost && participants.length >= 2 && (
+              <button
+                onClick={handleStartDraftNow}
+                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+              >
+                Start Draft ({participants.length} Players)
+              </button>
             )}
           </div>
         ) : (
@@ -178,7 +274,7 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
             <div className="flex bg-slate-950 p-1 rounded-2xl border border-slate-800">
               <button
                 onClick={() => { setActiveTab('create'); setErrorMessage(''); }}
-                className={`flex-1 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all ${
+                className={`flex-1 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                   activeTab === 'create' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -186,7 +282,7 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
               </button>
               <button
                 onClick={() => { setActiveTab('join'); setErrorMessage(''); }}
-                className={`flex-1 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all ${
+                className={`flex-1 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                   activeTab === 'join' ? 'bg-amber-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -195,14 +291,89 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
             </div>
 
             {activeTab === 'create' ? (
-              <div className="space-y-4 py-2">
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Host a private 2-player IPL draft room. You will get a 6-character room code to invite your opponent.
-                </p>
+              <div className="space-y-4 py-1">
+                {/* 1. Player Count Selector (2, 3, 4) */}
+                <div className="space-y-1.5 text-left">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-amber-400" /> Number of Players
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[2, 3, 4].map(count => (
+                      <button
+                        key={count}
+                        type="button"
+                        onClick={() => setMaxPlayers(count)}
+                        className={`py-2 rounded-xl font-black text-xs border transition-all cursor-pointer ${
+                          maxPlayers === count
+                            ? 'bg-amber-500/20 text-amber-300 border-amber-500 shadow-md'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
+                        }`}
+                      >
+                        {count} Players
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Turn Timer Selector (10s, 15s, 20s, 30s) */}
+                <div className="space-y-1.5 text-left">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-cyan-400" /> Turn Timer
+                  </label>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[10, 15, 20, 30].map(secs => (
+                      <button
+                        key={secs}
+                        type="button"
+                        onClick={() => setTurnTimer(secs)}
+                        className={`py-1.5 rounded-xl font-bold text-[11px] border transition-all cursor-pointer ${
+                          turnTimer === secs
+                            ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
+                        }`}
+                      >
+                        {secs}s
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Draft Mode (Snake vs Alternating) */}
+                <div className="space-y-1.5 text-left">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Shuffle className="w-3.5 h-3.5 text-purple-400" /> Draft Turn Order
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setDraftMode('snake')}
+                      className={`py-2 px-3 rounded-xl font-bold text-xs border transition-all text-center cursor-pointer ${
+                        draftMode === 'snake'
+                          ? 'bg-purple-500/20 text-purple-300 border-purple-500'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      Snake Draft 🐍
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDraftMode('alternating')}
+                      className={`py-2 px-3 rounded-xl font-bold text-xs border transition-all text-center cursor-pointer ${
+                        draftMode === 'alternating'
+                          ? 'bg-purple-500/20 text-purple-300 border-purple-500'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      Alternating 🔄
+                    </button>
+                  </div>
+                </div>
+
+                {/* Create Room Button */}
                 <button
                   onClick={handleCreateRoom}
                   disabled={isLoading}
-                  className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full mt-2 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   <span>Generate Room Code</span>
@@ -210,7 +381,7 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
               </div>
             ) : (
               <form onSubmit={handleJoinRoomSubmit} className="space-y-4 py-2">
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                     Enter 6-Character Room Code
                   </label>

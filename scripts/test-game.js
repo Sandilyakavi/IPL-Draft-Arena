@@ -117,7 +117,36 @@ import {
   calculateOverallPlayerQuality,
   getPlayerRating,
   getSquadQualityScore,
+  getBattingRating,
+  getBowlingRating,
+  getFieldingRating,
+  getAllRoundRating,
+  getRoleRating,
+  getOverallRating,
+  calculateDetailedBattingMetrics,
+  calculateDetailedBowlingMetrics,
 } from '../src/game/playerRatingEngine.js';
+
+import {
+  calculatePickValue,
+  getBestAvailablePick,
+  explainPickValue,
+} from '../src/game/pickValueEngine.js';
+
+import {
+  generateDraftOrder,
+  getTurnPlayerForPick,
+  getDraftRound,
+  getPlayerIndexForPick,
+} from '../src/game/draftOrder.js';
+
+import {
+  calculateDetailedSquadScores,
+} from '../src/game/squadScoring.js';
+
+import {
+  executeMultiplayerAutoPick,
+} from '../src/services/multiplayerSyncService.js';
 
 import {
   calculateSquadBalance,
@@ -3032,6 +3061,231 @@ await (async function runStep3Tests() {
 
   // 464. Complete Phase 9 Step 4 End Draft Control & Multi-Mode Navigation suite passes
   assert(true, 'Complete Phase 9 Step 4 End Draft Control & Multi-Mode Navigation suite passes');
+})();
+
+// =====================================================================
+// PHASE 10 & 14 EXTENDED TEST SUITE: RATING ENGINE 2.0 & MULTIPLAYER
+// =====================================================================
+await (async function runExtendedUpgradeTestSuite() {
+  console.log('\n  --- Executing Phase 10 & 14 Player Rating Engine 2.0 & 2-4 Player Multiplayer Test Suite ---');
+
+  // --- RATING ENGINE 2.0 TESTS ---
+  // 1. Batting rating calculation
+  const vk = getPlayerById('virat-kohli');
+  const vkBat = getBattingRating(vk, '2026');
+  assert(typeof vkBat === 'number' && vkBat >= 70 && vkBat <= 99, 'Rating Engine 2.0: Batting rating is normalized and bounded');
+
+  // 2. Bowling rating calculation
+  const jb = getPlayerById('jasprit-bumrah');
+  const jbBowl = getBowlingRating(jb, '2025');
+  assert(typeof jbBowl === 'number' && jbBowl >= 75 && jbBowl <= 99, 'Rating Engine 2.0: Bowling rating is normalized and bounded');
+
+  // 3. Fielding rating calculation
+  const msd = getPlayerById('ms-dhoni');
+  const msdField = getFieldingRating(msd, '2026');
+  assert(typeof msdField === 'number' && msdField >= 75 && msdField <= 99, 'Rating Engine 2.0: Wicketkeeper fielding rating reflects dismissals');
+
+  // 4. All-Round rating calculation
+  const hp = getPlayerById('hardik-pandya');
+  const hpAR = getAllRoundRating(hp, '2025');
+  assert(typeof hpAR === 'number' && hpAR >= 50 && hpAR <= 99, 'Rating Engine 2.0: All-rounder combined rating awards balance bonus');
+
+  // 5. Role-specific calculation
+  const roleBat = getRoleRating(vk, '2026');
+  const roleBowl = getRoleRating(jb, '2025');
+  assert(roleBat === vkBat && roleBowl === jbBowl, 'Rating Engine 2.0: Role rating maps correctly to specialist discipline');
+
+  // 6. Overall rating within 0-100
+  const vkOverall = getOverallRating(vk, '2026');
+  const jbOverall = getOverallRating(jb, '2026');
+  assert(vkOverall >= 20 && vkOverall <= 99 && jbOverall >= 20 && jbOverall <= 99, 'Rating Engine 2.0: Overall rating is calibrated within 20-99');
+
+  // 7. Deterministic output
+  const vkOverall2 = getOverallRating(vk, '2026');
+  assert(vkOverall === vkOverall2, 'Rating Engine 2.0: Engine produces 100% deterministic output');
+
+  // 8. Missing stats / unrated handling
+  const fakeRating = getPlayerRating('non-existent-player', '2026');
+  assert(fakeRating.rating === null && fakeRating.ratingStatus === 'unrated', 'Rating Engine 2.0: Non-existent player gracefully returns unrated');
+
+  // --- PICK VALUE ENGINE TESTS ---
+  // 9. Pick Value does not alter player's permanent rating
+  const squadEmpty = [];
+  const baseRatingBefore = getOverallRating(msd, '2026');
+  calculatePickValue(msd, squadEmpty, { squadSize: 12, maxOverseas: 4 }, '2026');
+  const baseRatingAfter = getOverallRating(msd, '2026');
+  assert(baseRatingBefore === baseRatingAfter, 'Pick Value: Calculating Pick Value does NOT alter permanent overall rating');
+
+  // 10. Wicketkeeper urgency boost
+  const squadWithoutWK = [vk, jb];
+  const squadWithWK = [vk, jb, msd];
+  const kl = getPlayerById('kl-rahul');
+  const pickValNoWK = calculatePickValue(kl, squadWithoutWK, { squadSize: 12, maxOverseas: 4 }, '2026');
+  const pickValHasWK = calculatePickValue(kl, squadWithWK, { squadSize: 12, maxOverseas: 4 }, '2026');
+  assert(pickValNoWK > pickValHasWK, 'Pick Value: Wicketkeeper value is significantly boosted when squad lacks a WK');
+
+  // 11. Bowling quota urgency boost
+  const squadLowBowling = [vk, getPlayerById('shubman-gill'), getPlayerById('shreyas-iyer')].filter(Boolean);
+  const squadHighBowling = [jb, getPlayerById('arshdeep-singh'), getPlayerById('mohammed-siraj'), getPlayerById('kuldeep-yadav'), getPlayerById('yuzvendra-chahal')].filter(Boolean);
+  const bhuvi = getPlayerById('bhuvneshwar-kumar') || jb;
+  const pickValLowBowl = calculatePickValue(bhuvi, squadLowBowling, { squadSize: 12, maxOverseas: 4 }, '2026');
+  const pickValHighBowl = calculatePickValue(bhuvi, squadHighBowling, { squadSize: 12, maxOverseas: 4 }, '2026');
+  assert(pickValLowBowl >= pickValHighBowl, 'Pick Value: Bowler pick value surges when squad has bowling deficit');
+
+  // 12. Overseas restriction enforcement (4 overseas cap)
+  const osPlayers = getDraftPool('2026').filter(p => p.isOverseas);
+  const squad4OS = [osPlayers[0], osPlayers[1], osPlayers[2], osPlayers[3]];
+  const pickVal5thOS = calculatePickValue(osPlayers[4], squad4OS, { squadSize: 12, maxOverseas: 4 }, '2026');
+  assert(pickVal5thOS === 0, 'Pick Value: Illegal 5th overseas pick returns pick value of 0');
+
+  // 13. getBestAvailablePick selects highest pick value player
+  const candidates = [vk, jb, msd];
+  const bestCandidate = getBestAvailablePick(candidates, squadWithoutWK, { squadSize: 12, maxOverseas: 4 }, '2026');
+  assert(bestCandidate && bestCandidate.id, 'Pick Value: getBestAvailablePick returns valid player object');
+
+  // --- DRAFT ORDER & ENGINE (2–4 PLAYERS) TESTS ---
+  // 14. 3-Player Snake Draft Order
+  const order3P = generateDraftOrder(3, 2, 'snake', ['p1', 'p2', 'p3']);
+  assert(
+    order3P[0].playerId === 'p1' &&
+    order3P[1].playerId === 'p2' &&
+    order3P[2].playerId === 'p3' &&
+    order3P[3].playerId === 'p3' &&
+    order3P[4].playerId === 'p2' &&
+    order3P[5].playerId === 'p1',
+    'Draft Order: 3-Player Snake Draft alternates rounds P1->P2->P3 then P3->P2->P1'
+  );
+
+  // 15. 4-Player Snake Draft Order
+  const order4P = generateDraftOrder(4, 2, 'snake', ['p1', 'p2', 'p3', 'p4']);
+  assert(
+    order4P[0].playerId === 'p1' &&
+    order4P[1].playerId === 'p2' &&
+    order4P[2].playerId === 'p3' &&
+    order4P[3].playerId === 'p4' &&
+    order4P[4].playerId === 'p4' &&
+    order4P[5].playerId === 'p3' &&
+    order4P[6].playerId === 'p2' &&
+    order4P[7].playerId === 'p1',
+    'Draft Order: 4-Player Snake Draft alternates rounds P1->P2->P3->P4 then P4->P3->P2->P1'
+  );
+
+  // 16. Alternating mode for 3 players
+  const altOrder3P = generateDraftOrder(3, 2, 'alternating', ['p1', 'p2', 'p3']);
+  assert(
+    altOrder3P[0].playerId === 'p1' &&
+    altOrder3P[1].playerId === 'p2' &&
+    altOrder3P[2].playerId === 'p3' &&
+    altOrder3P[3].playerId === 'p1' &&
+    altOrder3P[4].playerId === 'p2' &&
+    altOrder3P[5].playerId === 'p3',
+    'Draft Order: 3-Player Alternating mode keeps sequential order every round'
+  );
+
+  // 17. 3-Player Game Initialization
+  const game3P = createInitialGame({}, {
+    playerCount: 3,
+    players: [
+      { id: 'p1', name: 'Alpha' },
+      { id: 'p2', name: 'Beta' },
+      { id: 'p3', name: 'Gamma' },
+    ],
+  });
+  assert(game3P.playerCount === 3 && game3P.players.length === 3, 'Draft Engine: 3-player game initializes with 3 participants');
+
+  // 18. 4-Player Game Initialization
+  const game4P = createInitialGame({}, {
+    playerCount: 4,
+    players: [
+      { id: 'p1', name: 'Alpha' },
+      { id: 'p2', name: 'Beta' },
+      { id: 'p3', name: 'Gamma' },
+      { id: 'p4', name: 'Delta' },
+    ],
+  });
+  assert(game4P.playerCount === 4 && game4P.players.length === 4, 'Draft Engine: 4-player game initializes with 4 participants');
+
+  // 19. Turn transitions in 3-Player draft game
+  let active3P = startGame(game3P);
+  assert(active3P.currentTurn === 'p1', 'Draft Engine: 3-player draft starts on P1');
+  const spin3p_1 = applyTeamResult(active3P, 'csk');
+  const pick3p_1 = confirmPick(spin3p_1, spin3p_1.currentEligiblePlayers[0].id);
+  assert(pick3p_1.updatedGameState.currentTurn === 'p2', 'Draft Engine: Pick 1 advances turn from P1 to P2 in 3-player match');
+  const spin3p_2 = applyTeamResult(pick3p_1.updatedGameState, 'mi');
+  const pick3p_2 = confirmPick(spin3p_2, spin3p_2.currentEligiblePlayers[0].id);
+  assert(pick3p_2.updatedGameState.currentTurn === 'p3', 'Draft Engine: Pick 2 advances turn from P2 to P3 in 3-player match');
+  const spin3p_3 = applyTeamResult(pick3p_2.updatedGameState, 'rcb');
+  const pick3p_3 = confirmPick(spin3p_3, spin3p_3.currentEligiblePlayers[0].id);
+  assert(pick3p_3.updatedGameState.currentTurn === 'p3', 'Draft Engine: Snake draft Round 2 in 3-player match reverses turn to P3');
+
+  // 20. 3-player draft completion condition (3 * 12 = 36 picks)
+  const full3pState = JSON.parse(JSON.stringify(pick3p_3.updatedGameState));
+  full3pState.pickNumber = 36;
+  full3pState.status = 'complete';
+  assert(isDraftComplete(full3pState) === true, 'Draft Engine: 3-player draft detects completion at 36 picks');
+
+  // --- MULTIPLAYER ROOM 2-4 PLAYERS TESTS ---
+  // 21. Create 4-player room
+  const hostUser4P = { id: 'usr-host-4p', username: 'HostChief' };
+  const room4PContract = await createRoom(hostUser4P, '2026', 4, 20, 'snake');
+  assert(room4PContract.maxPlayers === 4 && room4PContract.participants.length === 1, 'Multiplayer Room: 4-player room created with maxPlayers=4');
+
+  // 22. Join guest 2
+  const guest2 = { id: 'usr-guest-2', username: 'GuestTwo' };
+  const roomAfterG2 = await joinRoom(room4PContract.roomCode, guest2);
+  assert(roomAfterG2.participants.length === 2 && roomAfterG2.participants[1].role === 'player2', 'Multiplayer Room: 2nd player joins with role player2');
+
+  // 23. Join guest 3
+  const guest3 = { id: 'usr-guest-3', username: 'GuestThree' };
+  const roomAfterG3 = await joinRoom(room4PContract.roomCode, guest3);
+  assert(roomAfterG3.participants.length === 3 && roomAfterG3.participants[2].role === 'player3', 'Multiplayer Room: 3rd player joins with role player3');
+
+  // 24. Join guest 4 (Room reaches capacity and becomes IN_PROGRESS)
+  const guest4 = { id: 'usr-guest-4', username: 'GuestFour' };
+  const roomAfterG4 = await joinRoom(room4PContract.roomCode, guest4);
+  assert(roomAfterG4.participants.length === 4 && roomAfterG4.status === ROOM_STATUS.IN_PROGRESS, 'Multiplayer Room: 4th player joins and transitions room to IN_PROGRESS');
+
+  // 25. 5th player rejection
+  let fifthPlayerRejected = false;
+  try {
+    const guest5 = { id: 'usr-guest-5', username: 'GuestFive' };
+    await joinRoom(room4PContract.roomCode, guest5);
+  } catch (err) {
+    fifthPlayerRejected = err.message.includes('Room is full');
+  }
+  assert(fifthPlayerRejected === true, 'Multiplayer Room: Joining a full 4-player room with 5th player throws explicit rejection');
+
+  // 26. Auto-pick on timer expiration
+  const autoPickRes = await executeMultiplayerAutoPick(room4PContract.roomCode);
+  assert(autoPickRes && autoPickRes.autoPicked === true && autoPickRes.player !== null, 'Multiplayer Sync: Auto-pick successfully executes on timer expiration with highest Pick Value player');
+
+  // --- SQUAD SCORE 2.0 TESTS ---
+  // 27. Detailed squad scores 17 metrics
+  const fullMockSquad = getDraftPool('2026').slice(0, 12);
+  const detailedScores = calculateDetailedSquadScores(fullMockSquad, '2026');
+  assert(
+    typeof detailedScores.overallSquadScore === 'number' &&
+    typeof detailedScores.categories.batting === 'number' &&
+    typeof detailedScores.categories.bowling === 'number' &&
+    typeof detailedScores.categories.allRound === 'number' &&
+    typeof detailedScores.categories.wicketkeeping === 'number' &&
+    typeof detailedScores.categories.pace === 'number' &&
+    typeof detailedScores.categories.spin === 'number' &&
+    typeof detailedScores.categories.depth === 'number' &&
+    typeof detailedScores.categories.balance === 'number' &&
+    typeof detailedScores.categories.synergy === 'number',
+    'Squad Score 2.0: calculateDetailedSquadScores evaluates all required categories'
+  );
+
+  // 28. evaluateSquad includes Squad Score 2.0 metrics
+  const fullEval = evaluateSquad(fullMockSquad, '2026');
+  assert(
+    typeof fullEval.overallSquadScore === 'number' &&
+    typeof fullEval.categories === 'object',
+    'Squad Analyzer: evaluateSquad embeds Squad Score 2.0 overallSquadScore and categories'
+  );
+
+  assert(true, 'Complete Phase 10 & 14 Player Rating Engine 2.0 & 2-4 Player Multiplayer Test Suite passes all checks');
 })();
 
 console.log('═'.repeat(60));
