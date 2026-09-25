@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { createRoom, joinRoom, subscribeToRoom } from '../../services/multiplayerRoomService';
+import { createRoom, joinRoom, subscribeToRoom, broadcastRoomEvent } from '../../services/multiplayerRoomService';
 import { ROOM_STATUS } from '../../multiplayer/multiplayerArchitecture';
 import { Users, Copy, Check, ArrowRight, X, Loader2, Sparkles, Clock, Shuffle } from 'lucide-react';
 import { DRAFT_CONFIG } from '../../config/draftConfig';
@@ -113,10 +113,20 @@ export default function MultiplayerRoomModal({ isOpen, onClose, onRoomReady }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleStartDraftNow = () => {
+  const handleStartDraftNow = async () => {
     if (!roomContract) return;
+    const activeContract = {
+      ...roomContract,
+      status: ROOM_STATUS.IN_PROGRESS,
+    };
+    try {
+      await broadcastRoomEvent(roomContract.roomCode, 'GAME_STARTED', activeContract);
+      await broadcastRoomEvent(roomContract.roomCode, 'ROOM_STATE_UPDATED', activeContract);
+    } catch (err) {
+      console.warn('Broadcast start draft warning:', err.message);
+    }
     if (onRoomReady) {
-      onRoomReady(roomContract);
+      onRoomReady(activeContract);
     }
   };
 

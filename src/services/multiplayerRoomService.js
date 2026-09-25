@@ -20,6 +20,7 @@ import { supabase, isSupabaseConfigured } from '../utils/supabaseClient.js';
 import {
   ROOM_STATUS,
   TURN_ROLES,
+  MULTIPLAYER_EVENTS,
   generateRoomCode,
   createMultiplayerRoomContract,
   joinMultiplayerRoomContract,
@@ -29,6 +30,8 @@ import {
 
 // Memory room cache for offline/testing mode when Supabase is not configured
 const memoryRooms = new Map();
+// In-memory subscription listeners for immediate fan-out across clients in memory mode
+const memorySubscribers = new Map();
 
 /**
  * Generates a collision-safe 6-character room code by checking database
@@ -193,12 +196,16 @@ export async function joinRoom(roomCode, guestUser) {
   }
 
   const updatedContract = joinMultiplayerRoomContract(roomContract, guestUser);
+  const isFull = updatedContract.status === ROOM_STATUS.IN_PROGRESS;
 
   if (isSupabaseConfigured && supabase) {
     const { error } = await supabase
       .from('draft_rooms')
       .update({
-        guest_id: updatedContract.guest?.userId || guestUser.id,
+        // CRITICAL RLS FIX: Keep guest_id NULL while waiting so subsequent players (P3, P4)
+        // can join and update under RLS policy: (guest_id IS NULL AND status = 'waiting_for_opponent').
+        // Only assign guest_id when the room has reached full capacity and transitions to IN_PROGRESS.
+        guest_id: isFull ? (updatedContract.guest?.userId || guestUser.id) : null,
         status: updatedContract.status,
         game_state: updatedContract,
         updated_at: new Date().toISOString(),
@@ -211,49 +218,152 @@ export async function joinRoom(roomCode, guestUser) {
   }
 
   memoryRooms.set(cleanCode, updatedContract);
+
+  // Authoritatively broadcast to all existing connected clients (P1, P2, etc.)
+  const eventName = isFull ? MULTIPLAYER_EVENTS.GAME_STARTED : MULTIPLAYER_EVENTS.PLAYER_JOINED;
+  await broadcastRoomEvent(cleanCode, eventName, updatedContract);
+  await broadcastRoomEvent(cleanCode, 'ROOM_STATE_UPDATED', updatedContract);
+
   return updatedContract;
 }
 
 /**
- * Subscribes to Supabase Realtime updates and presence for a room
+ * Broadcasts a realtime event and updated contract to all clients subscribed to a room.
+ * Delivers immediately to both Supabase Realtime channel and in-memory listeners.
+ */
+export async function broadcastRoomEvent(roomCode, eventName, payload) {
+  if (!roomCode || !payload) return;
+  const cleanCode = roomCode.trim().toUpperCase();
+
+  // 1. Fan out to in-memory subscribers (tests, offline mode, same-origin instances)
+  const subscribers = memorySubscribers.get(cleanCode);
+  if (subscribers && subscribers.size > 0) {
+    subscribers.forEach((cb) => {
+      try {
+        cb(payload);
+      } catch (err) {
+        console.warn('Memory subscriber callback error:', err.message);
+      }
+    });
+  }
+
+  // 2. Realtime broadcast via Supabase channel if configured
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const channelName = `room:${cleanCode}`;
+      let channel = supabase.getChannels().find(
+        (c) => c.topic === `realtime:${channelName}` || c.topic === channelName
+      );
+
+      if (!channel) {
+        channel = supabase.channel(channelName, {
+          config: { presence: { key: cleanCode }, broadcast: { self: false } },
+        });
+        await new Promise((resolve) => {
+          channel.subscribe((status) => {
+            if (status === 'SUBSCRIBED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+              resolve();
+            }
+          });
+        });
+      }
+
+      await channel.send({
+        type: 'broadcast',
+        event: eventName,
+        payload,
+      });
+    } catch (err) {
+      console.warn(`Supabase broadcast warning for ${eventName}:`, err.message);
+    }
+  }
+}
+
+/**
+ * Subscribes to Supabase Realtime updates, broadcast events, and presence for a room.
+ * Dual-channel listener: supports both Supabase Broadcast and postgres_changes.
  */
 export function subscribeToRoom(roomCode, onRoomUpdate = () => {}, onPresenceChange = () => {}) {
   if (!roomCode) return () => {};
   const cleanCode = roomCode.trim().toUpperCase();
 
+  // Register in-memory subscriber for instant cross-client synchronization
+  if (!memorySubscribers.has(cleanCode)) {
+    memorySubscribers.set(cleanCode, new Set());
+  }
+  memorySubscribers.get(cleanCode).add(onRoomUpdate);
+
+  const cleanupMemory = () => {
+    const subs = memorySubscribers.get(cleanCode);
+    if (subs) {
+      subs.delete(onRoomUpdate);
+      if (subs.size === 0) memorySubscribers.delete(cleanCode);
+    }
+  };
+
   if (!isSupabaseConfigured || !supabase) {
-    return () => {};
+    return cleanupMemory;
   }
 
   try {
-    const channel = supabase.channel(`room:${cleanCode}`, {
-      config: { presence: { key: cleanCode } },
+    const channelName = `room:${cleanCode}`;
+    const channel = supabase.channel(channelName, {
+      config: {
+        presence: { key: cleanCode },
+        broadcast: { self: false },
+      },
     });
 
+    // 1. Listen to broadcast events (wildcard and explicit lifecycle events)
     channel
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'draft_rooms', filter: `room_code=eq.${cleanCode}` },
-        (payload) => {
-          if (payload.new && payload.new.game_state) {
-            onRoomUpdate(payload.new.game_state);
-          }
+      .on('broadcast', { event: '*' }, ({ payload }) => {
+        if (payload) {
+          memoryRooms.set(cleanCode, payload);
+          onRoomUpdate(payload);
         }
-      )
-      .on('presence', { event: 'sync' }, () => {
-        const presenceState = channel.presenceState();
-        onPresenceChange(presenceState);
       })
-      .subscribe();
+      .on('broadcast', { event: MULTIPLAYER_EVENTS.GAME_STARTED }, ({ payload }) => {
+        if (payload) {
+          memoryRooms.set(cleanCode, payload);
+          onRoomUpdate(payload);
+        }
+      })
+      .on('broadcast', { event: 'ROOM_STATE_UPDATED' }, ({ payload }) => {
+        if (payload) {
+          memoryRooms.set(cleanCode, payload);
+          onRoomUpdate(payload);
+        }
+      });
+
+    // 2. Listen to database postgres_changes updates on draft_rooms
+    channel.on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'draft_rooms', filter: `room_code=eq.${cleanCode}` },
+      (payload) => {
+        if (payload.new && payload.new.game_state) {
+          memoryRooms.set(cleanCode, payload.new.game_state);
+          onRoomUpdate(payload.new.game_state);
+        }
+      }
+    );
+
+    // 3. Listen to presence sync
+    channel.on('presence', { event: 'sync' }, () => {
+      const presenceState = channel.presenceState();
+      onPresenceChange(presenceState);
+    });
+
+    channel.subscribe();
 
     return () => {
+      cleanupMemory();
       try {
         supabase.removeChannel(channel);
       } catch (err) {}
     };
   } catch (err) {
     console.warn('Realtime subscription error:', err.message);
-    return () => {};
+    return cleanupMemory;
   }
 }
 
@@ -309,4 +419,5 @@ export function _setMemoryRoom(roomCode, contract) {
  */
 export function _resetMemoryRooms() {
   memoryRooms.clear();
+  memorySubscribers.clear();
 }

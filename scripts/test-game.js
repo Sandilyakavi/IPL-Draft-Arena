@@ -3245,6 +3245,82 @@ await (async function runExtendedUpgradeTestSuite() {
   const roomAfterG4 = await joinRoom(room4PContract.roomCode, guest4);
   assert(roomAfterG4.participants.length === 4 && roomAfterG4.status === ROOM_STATUS.IN_PROGRESS, 'Multiplayer Room: 4th player joins and transitions room to IN_PROGRESS');
 
+  // 24b. REGRESSION TEST: existing clients transition from WAITING to IN_PROGRESS when final player joins
+  const hostP1 = { id: 'usr-p1-reg', username: 'RegHost' };
+  const room3P = await createRoom(hostP1, '2026', 3, 20, 'snake');
+
+  let client1ReceivedState = null;
+  let client1Transitioned = false;
+  const unsub1 = subscribeToRoom(room3P.roomCode, (updatedRoom) => {
+    client1ReceivedState = updatedRoom;
+    if (updatedRoom.status === ROOM_STATUS.IN_PROGRESS) {
+      client1Transitioned = true;
+    }
+  });
+
+  // Player 2 joins: Client 1 must receive lobby update and still be WAITING
+  const guestP2 = { id: 'usr-p2-reg', username: 'RegPlayer2' };
+  await joinRoom(room3P.roomCode, guestP2);
+  assert(client1ReceivedState !== null && client1ReceivedState.participants.length === 2, 'Multiplayer Realtime: existing host receives participant update when 2nd player joins');
+  assert(client1ReceivedState.status === ROOM_STATUS.WAITING, 'Multiplayer Realtime: room remains WAITING while slots remain open');
+
+  // Player 2 also subscribes while waiting in lobby
+  let client2ReceivedState = null;
+  let client2Transitioned = false;
+  const unsub2 = subscribeToRoom(room3P.roomCode, (updatedRoom) => {
+    client2ReceivedState = updatedRoom;
+    if (updatedRoom.status === ROOM_STATUS.IN_PROGRESS) {
+      client2Transitioned = true;
+    }
+  });
+
+  // Player 3 (final required player) joins: BOTH existing clients must transition!
+  const guestP3 = { id: 'usr-p3-reg', username: 'RegPlayer3' };
+  const roomAfterP3 = await joinRoom(room3P.roomCode, guestP3);
+
+  // Assert exact regression requirement:
+  assert(
+    client1Transitioned === true &&
+    client2Transitioned === true &&
+    roomAfterP3.status === ROOM_STATUS.IN_PROGRESS &&
+    client1ReceivedState.status === ROOM_STATUS.IN_PROGRESS &&
+    client2ReceivedState.status === ROOM_STATUS.IN_PROGRESS &&
+    client1ReceivedState.participants.length === 3 &&
+    client2ReceivedState.participants.length === 3 &&
+    client1ReceivedState.gameStateSnapshot !== null &&
+    client2ReceivedState.gameStateSnapshot !== null &&
+    client1ReceivedState.gameStateSnapshot.playerCount === 3 &&
+    client2ReceivedState.gameStateSnapshot.playerCount === 3 &&
+    client1ReceivedState.gameStateSnapshot.currentTurn === 'player1' &&
+    client2ReceivedState.gameStateSnapshot.currentTurn === 'player1',
+    'existing clients transition from WAITING to IN_PROGRESS when final player joins'
+  );
+
+  // 24c. Realtime turn propagation: verify pick updates propagate to all subscribed clients
+  let client2UpdatedTurnState = null;
+  let client3UpdatedTurnState = null;
+  const unsub2Turn = subscribeToRoom(room3P.roomCode, (room) => { client2UpdatedTurnState = room; });
+  const unsub3Turn = subscribeToRoom(room3P.roomCode, (room) => { client3UpdatedTurnState = room; });
+
+  const spinRes3P = await executeMultiplayerSpin(room3P.roomCode, hostP1.id);
+  const eligibleFirst = spinRes3P.roomContract.gameStateSnapshot.currentEligiblePlayers[0];
+  await executeMultiplayerPick(room3P.roomCode, hostP1.id, eligibleFirst.id);
+
+  assert(
+    client2UpdatedTurnState !== null &&
+    client3UpdatedTurnState !== null &&
+    client2UpdatedTurnState.gameStateSnapshot.pickNumber === 1 &&
+    client3UpdatedTurnState.gameStateSnapshot.pickNumber === 1 &&
+    client2UpdatedTurnState.gameStateSnapshot.currentTurn === 'player2' &&
+    client3UpdatedTurnState.gameStateSnapshot.currentTurn === 'player2',
+    'Multiplayer Realtime: pick confirmed propagates to all 3 connected clients without page refresh'
+  );
+
+  unsub1();
+  unsub2();
+  unsub2Turn();
+  unsub3Turn();
+
   // 25. 5th player rejection
   let fifthPlayerRejected = false;
   try {

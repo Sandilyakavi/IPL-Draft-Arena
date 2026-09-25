@@ -238,28 +238,46 @@ export default function DraftPage({ onToggleDashboard, showDebug = false }) {
     if (isMultiplayer) {
       setIsMultiplayerMode(true);
       setMultiplayerRoom(initialStateOrContract);
-      const activeState =
-        initialStateOrContract.gameStateSnapshot && initialStateOrContract.gameStateSnapshot.status !== 'setup'
-          ? initialStateOrContract.gameStateSnapshot
-          : startGame(
-              createInitialGame(
-                {},
-                {
-                  player1: {
-                    name: initialStateOrContract.host?.username || 'Host Player',
-                    avatar: initialStateOrContract.host?.avatar || '🏏',
-                    favoriteTeamId: initialStateOrContract.host?.favoriteTeamId || null,
-                  },
-                  player2: {
-                    name: initialStateOrContract.guest?.username || 'Guest Player',
-                    avatar: initialStateOrContract.guest?.avatar || '⚡',
-                    favoriteTeamId: initialStateOrContract.guest?.favoriteTeamId || null,
-                  },
-                  firstTurn: 'player1',
-                  season: initialStateOrContract.season || '2026',
-                }
-              )
-            );
+      let activeState = initialStateOrContract.gameStateSnapshot;
+      if (!activeState || activeState.status === 'setup') {
+        const pCount = initialStateOrContract.maxPlayers || (initialStateOrContract.participants?.length) || 2;
+        const setupPlayers = Array.isArray(initialStateOrContract.participants) && initialStateOrContract.participants.length > 0
+          ? initialStateOrContract.participants.map((p, idx) => ({
+              id: `player${idx + 1}`,
+              name: p.username || p.displayName || `Player ${idx + 1}`,
+              avatar: p.avatar || '🏏',
+              favoriteTeamId: p.favoriteTeamId || null,
+              squad: [],
+              squadOrder: [],
+            }))
+          : [
+              {
+                id: 'player1',
+                name: initialStateOrContract.host?.username || 'Host Player',
+                avatar: initialStateOrContract.host?.avatar || '🏏',
+                favoriteTeamId: initialStateOrContract.host?.favoriteTeamId || null,
+              },
+              {
+                id: 'player2',
+                name: initialStateOrContract.guest?.username || 'Guest Player',
+                avatar: initialStateOrContract.guest?.avatar || '⚡',
+                favoriteTeamId: initialStateOrContract.guest?.favoriteTeamId || null,
+              },
+            ];
+
+        activeState = startGame(
+          createInitialGame(
+            {},
+            {
+              playerCount: pCount,
+              draftMode: initialStateOrContract.draftMode || 'snake',
+              players: setupPlayers,
+              firstTurn: 'player1',
+              season: initialStateOrContract.season || '2026',
+            }
+          )
+        );
+      }
       setGameState(activeState);
     } else {
       setIsMultiplayerMode(false);

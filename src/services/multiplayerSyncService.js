@@ -20,7 +20,7 @@ import {
   resolveUserRole,
   validateStateTransition,
 } from '../multiplayer/multiplayerArchitecture.js';
-import { fetchRoomByCode, _setMemoryRoom } from './multiplayerRoomService.js';
+import { fetchRoomByCode, _setMemoryRoom, broadcastRoomEvent } from './multiplayerRoomService.js';
 import {
   startGame,
   spinTeam,
@@ -103,6 +103,10 @@ export async function executeMultiplayerSpin(roomCode, userId, randomFn = Math.r
       console.warn('Supabase spin sync warning:', err.message);
     }
   }
+
+  // Authoritative realtime broadcast to remote clients
+  await broadcastRoomEvent(roomCode, MULTIPLAYER_EVENTS.WHEEL_SPUN, updatedContract);
+  await broadcastRoomEvent(roomCode, 'ROOM_STATE_UPDATED', updatedContract);
 
   return {
     roomContract: updatedContract,
@@ -215,9 +219,14 @@ export async function executeMultiplayerPick(roomCode, userId, selectedPlayerId)
     }
   }
 
+  // Authoritative realtime broadcast to remote clients
+  const pickEvent = isComplete ? MULTIPLAYER_EVENTS.GAME_COMPLETED : MULTIPLAYER_EVENTS.PICK_CONFIRMED;
+  await broadcastRoomEvent(roomCode, pickEvent, updatedContract);
+  await broadcastRoomEvent(roomCode, 'ROOM_STATE_UPDATED', updatedContract);
+
   return {
     roomContract: updatedContract,
-    event: isComplete ? MULTIPLAYER_EVENTS.GAME_COMPLETED : MULTIPLAYER_EVENTS.PICK_CONFIRMED,
+    event: pickEvent,
     nextTurnRole: updatedEngineState.currentTurn,
     pickNumber: updatedEngineState.pickNumber,
     isComplete,
@@ -350,6 +359,10 @@ export async function executeMultiplayerUpdateSquadOrder(roomCode, userId, playe
     }
   }
 
+  // Authoritative realtime broadcast to remote clients
+  await broadcastRoomEvent(roomCode, MULTIPLAYER_EVENTS.SQUAD_ORDER_UPDATED || 'SQUAD_ORDER_UPDATED', updatedContract);
+  await broadcastRoomEvent(roomCode, 'ROOM_STATE_UPDATED', updatedContract);
+
   return {
     roomContract: updatedContract,
     event: MULTIPLAYER_EVENTS.SQUAD_ORDER_UPDATED || 'SQUAD_ORDER_UPDATED',
@@ -412,6 +425,10 @@ export async function executeMultiplayerEndDraft(roomCode, userId, reason = 'Dra
       console.warn('Supabase end draft sync warning:', err.message);
     }
   }
+
+  // Authoritative realtime broadcast to remote clients
+  await broadcastRoomEvent(roomCode, MULTIPLAYER_EVENTS.MATCH_ABANDONED, updatedContract);
+  await broadcastRoomEvent(roomCode, 'ROOM_STATE_UPDATED', updatedContract);
 
   return {
     roomContract: updatedContract,
